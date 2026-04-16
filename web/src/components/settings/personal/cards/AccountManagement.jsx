@@ -17,7 +17,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   Card,
@@ -40,7 +40,6 @@ import {
 } from '@douyinfe/semi-icons';
 import { SiTelegram, SiWechat, SiLinux, SiDiscord } from 'react-icons/si';
 import { UserPlus, ShieldCheck } from 'lucide-react';
-import TelegramLoginButton from 'react-telegram-login';
 import {
   API,
   showError,
@@ -72,6 +71,15 @@ const AccountManagement = ({
   onPasskeyRegister,
   onPasskeyDelete,
 }) => {
+  const [TelegramLoginButton, setTelegramLoginButton] = useState(null);
+
+  useEffect(() => {
+    if (!status.telegram_oauth) return;
+    import('react-telegram-login').then((mod) => {
+      setTelegramLoginButton(() => mod.default);
+    });
+  }, [status.telegram_oauth]);
+
   const renderAccountInfo = (accountId, label) => {
     if (!accountId || accountId === '') {
       return <span className='text-gray-500'>{t('未绑定')}</span>;
@@ -466,14 +474,16 @@ const AccountManagement = ({
                 <div className='my-3 text-sm text-gray-600'>
                   {t('点击下方按钮通过 Telegram 完成绑定')}
                 </div>
-                <div className='flex justify-center'>
-                  <div className='scale-90'>
-                    <TelegramLoginButton
-                      dataAuthUrl='/api/oauth/telegram/bind'
-                      botName={status.telegram_bot_name}
-                    />
+                {TelegramLoginButton && (
+                  <div className='flex justify-center'>
+                    <div className='scale-90'>
+                      <TelegramLoginButton
+                        dataAuthUrl='/api/oauth/telegram/bind'
+                        botName={status.telegram_bot_name}
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
               </Modal>
 
               {/* LinuxDO绑定 */}

@@ -1,0 +1,73 @@
+# New API production Docker Compose configuration
+#
+# Topology:
+#   Cloudflare -> Apache2 (host) -> 127.0.0.1:3000 -> new-api container
+#   new-api container -> Redis container
+#   new-api container -> host PostgreSQL via host.docker.internal
+#
+# Usage:
+#   1. cp .env.production.example .env
+#   2. Edit .env with your real secrets and PostgreSQL DSN
+#   3. docker compose -f docker-compose.host-postgres.yml up -d --build
+
+services:
+  new-api:
+    build:
+      context: .
+    image: new-api:local
+    container_name: new-api
+    restart: unless-stopped
+    command: --log-dir /app/logs
+    env_file:
+      - .env
+    environment:
+      SQL_DSN: ${SQL_DSN:?set SQL_DSN in .env}
+      REDIS_CONN_STRING: ${REDIS_CONN_STRING:-redis://redis:6379/0}
+      SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET in .env}
+      CRYPTO_SECRET: ${CRYPTO_SECRET:?set CRYPTO_SECRET in .env}
+      TZ: ${TZ:-UTC}
+      ERROR_LOG_ENABLED: ${ERROR_LOG_ENABLED:-true}
+      BATCH_UPDATE_ENABLED: ${BATCH_UPDATE_ENABLED:-true}
+      SQL_MAX_IDLE_CONNS: ${SQL_MAX_IDLE_CONNS:-20}
+      SQL_MAX_OPEN_CONNS: ${SQL_MAX_OPEN_CONNS:-100}
+      SQL_MAX_LIFETIME: ${SQL_MAX_LIFETIME:-600}
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ./data:/data
+      - ./logs:/app/logs
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:3000/api/status | grep -o '\"success\":\\s*true' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: new-api-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  redis_data:
+
+networks:
+  internal:
+    driver: bridge

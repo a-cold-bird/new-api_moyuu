@@ -17,11 +17,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useEffect, useRef } from 'react';
+import React, { lazy, Suspense, useEffect, useRef } from 'react';
 import { Typography } from '@douyinfe/semi-ui';
-import MarkdownRenderer from '../common/markdown/MarkdownRenderer';
 import { ChevronRight, ChevronUp, Brain, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+
+const MarkdownRenderer = lazy(() => import('../common/markdown/MarkdownRenderer'));
 
 const ThinkingContent = ({
   message,
@@ -162,12 +163,14 @@ const ThinkingContent = ({
               }}
             >
               <div className='prose prose-xs sm:prose-sm prose-purple max-w-none text-xs sm:text-sm'>
-                <MarkdownRenderer
-                  content={finalExtractedThinkingContent}
-                  className=''
-                  animated={isThinkingStatus}
-                  previousContentLength={prevLength}
-                />
+            <Suspense fallback={<div className='text-xs sm:text-sm text-semi-color-text-2'>...</div>}>
+              <MarkdownRenderer
+                content={finalExtractedThinkingContent}
+                className=''
+                animated={isThinkingStatus}
+                previousContentLength={prevLength}
+              />
+            </Suspense>
               </div>
             </div>
           </div>

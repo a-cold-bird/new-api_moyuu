@@ -25,11 +25,68 @@ body.sidebar-collapsed {
 }
 
 body {
-  font-family: Lato, 'Helvetica Neue', Arial, Helvetica, 'Microsoft YaHei',
-    sans-serif;
-  color: var(--semi-color-text-0);
-  background-color: var(--semi-color-bg-0);
+  font-family: Lato, 'Helvetica Neue', Arial, Helvetica, 'Microsoft YaHei', sans-serif;
 }
+
+
+/* ==================== Global Aesthetic (Homepage Unification) ==================== */
+body {
+  background: var(--semi-color-bg-0);
+  color: var(--semi-color-text-0);
+  min-height: 100vh;
+}
+
+/* Semi UI 基础布局组件玻璃化/透明化，让背景透出 */
+.semi-layout,
+.semi-layout-content,
+.app-layout,
+.sidebar-container,
+.sidebar-nav,
+.semi-sider {
+  background: transparent !important;
+}
+
+/* Auth 页与 Console/Model 页的卡片通用玻璃拟态 */
+.semi-card {
+  background: color-mix(in srgb, var(--semi-color-bg-0) 75%, transparent) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--semi-color-border) 60%, transparent) !important;
+  box-shadow: 0 4px 20px -10px rgba(0, 0, 0, 0.08) !important;
+}
+
+html.dark .semi-card {
+  background: color-mix(in srgb, var(--semi-color-bg-0) 65%, transparent) !important;
+  box-shadow: 0 4px 20px -10px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* 保证顶部导航栏玻璃化 */
+header {
+  background: color-mix(in srgb, var(--semi-color-bg-0) 75%, transparent) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid color-mix(in srgb, var(--semi-color-border) 40%, transparent) !important;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.5s;
+}
+
+/* 保证模型/控制台里的表格底透明/柔和 */
+.semi-table-wrapper {
+  background: transparent !important;
+}
+.semi-table-row {
+  background: transparent !important;
+}
+.semi-table-row:hover > .semi-table-cell {
+  background: color-mix(in srgb, var(--semi-color-fill-0) 40%, transparent) !important;
+}
+.semi-table-thead > .semi-table-row > .semi-table-cell {
+  background: color-mix(in srgb, var(--semi-color-fill-0) 60%, transparent) !important;
+}
+
 
 /* 桌面端禁止 body 纵向滚动 - 防止 VChart tooltip 触发页面滚动条 */
 @media (min-width: 768px) {
@@ -746,6 +803,234 @@ html.dark .sbg-variant-green {
   padding-right: 0 !important;
 }
 
+/* ==================== Header Auth + Theme Toggle (cbmu style) ==================== */
+.header-login-link {
+  color: var(--semi-color-text-2);
+  transition: color 0.2s ease;
+}
+
+.header-login-link:hover {
+  color: var(--semi-color-text-0);
+}
+
+.header-register-link {
+  border-color: var(--semi-color-border);
+  background: var(--semi-color-fill-0);
+  color: var(--semi-color-text-0);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.header-register-link:hover {
+  background: var(--semi-color-fill-1);
+}
+
+.theme-toggle-switch {
+  position: relative;
+  width: 60px;
+  height: 28px;
+  border-radius: 28px;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  overflow: hidden;
+  transition: background 0.5s ease, box-shadow 0.5s ease;
+  background-color: #2b2e4a;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.theme-toggle-switch.light {
+  background: linear-gradient(135deg, #7dd3fc 0%, #60a5fa 55%, #93c5fd 100%);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.theme-toggle-switch.dark {
+  background: linear-gradient(135deg, #20243b 0%, #2b2e4a 55%, #31385b 100%);
+}
+
+.theme-toggle-handle {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  transition:
+    transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.5s ease,
+    box-shadow 0.5s ease;
+  z-index: 2;
+  box-shadow:
+    inset -2px -2px 4px rgba(0, 0, 0, 0.2),
+    0 1px 3px rgba(0, 0, 0, 0.4),
+    0 0 0 6px rgba(255, 255, 255, 0.05),
+    0 0 0 12px rgba(255, 255, 255, 0.03),
+    0 0 0 20px rgba(255, 255, 255, 0.015);
+  background-color: #d1d5e0;
+}
+
+.theme-toggle-switch.light .theme-toggle-handle {
+  transform: translateX(0);
+  background-color: #ffda51;
+  box-shadow:
+    inset -2px -2px 4px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    0 0 0 6px rgba(255, 255, 255, 0.2),
+    0 0 0 12px rgba(255, 255, 255, 0.15),
+    0 0 0 20px rgba(255, 255, 255, 0.08);
+}
+
+.theme-toggle-switch.dark .theme-toggle-handle {
+  transform: translateX(32px);
+}
+
+.crater {
+  position: absolute;
+  background-color: #aeb5c7;
+  border-radius: 50%;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.theme-toggle-switch.light .crater {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.crater-1 {
+  top: 4px;
+  left: 5px;
+  width: 6px;
+  height: 6px;
+}
+
+.crater-2 {
+  top: 11px;
+  left: 12px;
+  width: 4px;
+  height: 4px;
+}
+
+.crater-3 {
+  top: 13px;
+  left: 3px;
+  width: 7px;
+  height: 7px;
+}
+
+.theme-toggle-clouds {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  transition:
+    transform 0.5s ease,
+    opacity 0.5s ease;
+  z-index: 1;
+  opacity: 1;
+}
+
+.theme-toggle-switch.dark .theme-toggle-clouds {
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+.cloud {
+  position: absolute;
+  background-color: #fff;
+  border-radius: 50px;
+}
+
+.cloud-1 {
+  top: 16px;
+  left: 16px;
+  width: 50px;
+  height: 20px;
+}
+
+.cloud-2 {
+  top: 8px;
+  left: 26px;
+  width: 22px;
+  height: 22px;
+}
+
+.cloud-3 {
+  top: 12px;
+  left: 42px;
+  width: 16px;
+  height: 16px;
+}
+
+.theme-toggle-stars {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  transition:
+    transform 0.5s ease,
+    opacity 0.5s ease;
+  z-index: 1;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.theme-toggle-switch.light .theme-toggle-stars {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+
+.star {
+  position: absolute;
+  background-color: #fff;
+  clip-path: polygon(
+    50% 0%,
+    60% 40%,
+    100% 50%,
+    60% 60%,
+    50% 100%,
+    40% 60%,
+    0% 50%,
+    40% 40%
+  );
+}
+
+.star-1 {
+  top: 4px;
+  left: 12px;
+  width: 7px;
+  height: 7px;
+  opacity: 0.9;
+}
+
+.star-2 {
+  top: 15px;
+  left: 6px;
+  width: 4px;
+  height: 4px;
+  opacity: 0.7;
+}
+
+.star-3 {
+  top: 11px;
+  left: 26px;
+  width: 5px;
+  height: 5px;
+  opacity: 0.8;
+}
+
+.star-4 {
+  top: 6px;
+  left: 32px;
+  width: 4px;
+  height: 4px;
+  opacity: 0.5;
+}
+
 /* ==================== Banner 背景模糊球 ==================== */
 .blur-ball {
   position: absolute;
@@ -772,6 +1057,131 @@ html.dark .sbg-variant-green {
   top: 200px;
   left: 30%;
   opacity: 0.4;
+}
+
+/* ==================== Auth Pages (Homepage-aligned) ==================== */
+.auth-shell {
+  min-height: calc(100vh - 64px);
+  align-items: flex-start !important;
+  overflow-y: auto;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+@media (min-height: 860px) {
+  .auth-shell {
+    align-items: center !important;
+  }
+}
+
+.auth-brand-title {
+  color: var(--semi-color-text-0) !important;
+  letter-spacing: -0.02em;
+}
+
+.auth-card {
+  background: color-mix(in srgb, var(--semi-color-bg-0) 78%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--semi-color-border) 62%, transparent) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.28) !important;
+}
+
+.auth-shell .semi-form-field-label {
+  color: var(--semi-color-text-1) !important;
+  font-weight: 500;
+}
+
+.auth-shell .semi-input-wrapper,
+.auth-shell .semi-input,
+.auth-shell .semi-input-textarea {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--semi-color-bg-1) 92%, transparent),
+    color-mix(in srgb, var(--semi-color-bg-2) 86%, transparent)
+  ) !important;
+  border-color: color-mix(in srgb, var(--semi-color-border) 76%, transparent) !important;
+  color: var(--semi-color-text-0) !important;
+  border-radius: 14px !important;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.auth-shell .semi-input-wrapper-focus {
+  border-color: color-mix(in srgb, var(--semi-color-primary) 72%, var(--semi-color-border)) !important;
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--semi-color-primary) 18%, transparent),
+    0 10px 24px -18px color-mix(in srgb, var(--semi-color-primary) 52%, transparent) !important;
+}
+
+.auth-shell .semi-input::placeholder {
+  color: color-mix(in srgb, var(--semi-color-text-2) 86%, transparent) !important;
+}
+
+.auth-shell .semi-divider .semi-divider-with-text,
+.auth-shell .semi-typography-text {
+  color: var(--semi-color-text-2) !important;
+}
+
+.auth-card-title {
+  color: var(--semi-color-text-0) !important;
+}
+
+.auth-oauth-btn {
+  border: 1px solid color-mix(in srgb, var(--semi-color-border) 76%, transparent) !important;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--semi-color-bg-1) 92%, transparent),
+    color-mix(in srgb, var(--semi-color-bg-2) 84%, transparent)
+  ) !important;
+  color: var(--semi-color-text-0) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.auth-oauth-btn:hover {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--semi-color-fill-0) 94%, transparent),
+    color-mix(in srgb, var(--semi-color-fill-1) 86%, transparent)
+  ) !important;
+  border-color: color-mix(in srgb, var(--semi-color-primary) 42%, var(--semi-color-border)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 10px 24px -18px rgba(0, 0, 0, 0.45);
+}
+
+.auth-primary-btn {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--semi-color-primary) 72%, #4f8cff),
+    color-mix(in srgb, var(--semi-color-primary) 58%, #7f56ff)
+  ) !important;
+  color: #fff !important;
+  border: 1px solid transparent !important;
+  box-shadow: 0 10px 24px -16px color-mix(in srgb, var(--semi-color-primary) 60%, transparent);
+}
+
+.auth-primary-btn:hover {
+  filter: brightness(1.04);
+  box-shadow: 0 14px 30px -16px color-mix(in srgb, var(--semi-color-primary) 72%, transparent);
+}
+
+.auth-link {
+  color: var(--semi-color-primary) !important;
+}
+
+.auth-link:hover {
+  color: color-mix(in srgb, var(--semi-color-primary) 78%, var(--semi-color-text-0)) !important;
+}
+
+.site-mark-icon {
+  background: #111;
+  color: #fff;
+}
+
+body[theme-mode='dark'] .site-mark-icon,
+html.dark .site-mark-icon {
+  background: #fff;
+  color: #111;
 }
 
 /* 浅色主题下让模糊球更柔和 */
@@ -1006,3 +1416,62 @@ html.dark .with-pastel-balls::before {
 }
 
 .ec-dbcd0a3c01b55203 { forced-color-adjust: auto; }
+
+/* ==================== Modern Header Buttons ==================== */
+.header-sleek-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.2rem;
+  padding: 0 1rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  text-decoration: none;
+}
+
+.header-sleek-btn-ghost {
+  color: var(--semi-color-text-2);
+  background: transparent;
+}
+
+.header-sleek-btn-ghost:hover {
+  color: var(--semi-color-text-0);
+  background: color-mix(in srgb, var(--semi-color-fill-0) 80%, transparent);
+}
+
+.header-sleek-btn-outline {
+  color: var(--semi-color-text-1);
+  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+
+.header-sleek-btn-outline:hover {
+  color: var(--semi-color-text-0);
+  background: color-mix(in srgb, var(--surface-3) 80%, transparent);
+  border-color: var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.header-sleek-btn-solid {
+  color: var(--semi-color-bg-0);
+  background: var(--semi-color-text-0);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--semi-color-text-0) 20%, transparent);
+}
+
+.header-sleek-btn-solid:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--semi-color-text-0) 30%, transparent);
+  opacity: 0.92;
+}
+
+
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-\[fadeIn_0\.5s_ease-out\] {
+  animation: fadeIn 0.5s ease-out;
+}

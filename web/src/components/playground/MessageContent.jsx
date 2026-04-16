@@ -17,13 +17,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useRef, useEffect } from 'react';
+import React, { lazy, Suspense, useRef, useEffect } from 'react';
 import { Typography, TextArea, Button } from '@douyinfe/semi-ui';
-import MarkdownRenderer from '../common/markdown/MarkdownRenderer';
 import ThinkingContent from './ThinkingContent';
 import { Loader2, Check, X, Settings, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { isAdmin } from '../../helpers/utils';
+
+const MarkdownRenderer = lazy(() => import('../common/markdown/MarkdownRenderer'));
 
 const MessageContent = ({
   message,
@@ -337,14 +338,16 @@ const MessageContent = ({
                     <div
                       className={`prose prose-xs sm:prose-sm prose-gray max-w-none overflow-x-auto text-xs sm:text-sm ${message.role === 'user' ? 'user-message' : ''}`}
                     >
-                      <MarkdownRenderer
-                        content={textContent.text}
-                        className={
-                          message.role === 'user' ? 'user-message' : ''
-                        }
-                        animated={false}
-                        previousContentLength={0}
-                      />
+                      <Suspense fallback={<div className='text-xs sm:text-sm text-semi-color-text-2'>...</div>}>
+                        <MarkdownRenderer
+                          content={textContent.text}
+                          className={
+                            message.role === 'user' ? 'user-message' : ''
+                          }
+                          animated={false}
+                          previousContentLength={0}
+                        />
+                      </Suspense>
                     </div>
                   )}
               </div>
@@ -377,12 +380,14 @@ const MessageContent = ({
 
                 return (
                   <div className='prose prose-xs sm:prose-sm prose-gray max-w-none overflow-x-auto text-xs sm:text-sm'>
-                    <MarkdownRenderer
-                      content={finalDisplayableFinalContent}
-                      className=''
-                      animated={isThinkingStatus}
-                      previousContentLength={prevLength}
-                    />
+                    <Suspense fallback={<div className='text-xs sm:text-sm text-semi-color-text-2'>...</div>}>
+                      <MarkdownRenderer
+                        content={finalDisplayableFinalContent}
+                        className=''
+                        animated={isThinkingStatus}
+                        previousContentLength={prevLength}
+                      />
+                    </Suspense>
                   </div>
                 );
               }
@@ -391,12 +396,14 @@ const MessageContent = ({
                 <div
                   className={`prose prose-xs sm:prose-sm prose-gray max-w-none overflow-x-auto text-xs sm:text-sm ${message.role === 'user' ? 'user-message' : ''}`}
                 >
-                  <MarkdownRenderer
-                    content={message.content}
-                    className={message.role === 'user' ? 'user-message' : ''}
-                    animated={false}
-                    previousContentLength={0}
-                  />
+                  <Suspense fallback={<div className='text-xs sm:text-sm text-semi-color-text-2'>...</div>}>
+                    <MarkdownRenderer
+                      content={message.content}
+                      className={message.role === 'user' ? 'user-message' : ''}
+                      animated={false}
+                      previousContentLength={0}
+                    />
+                  </Suspense>
                 </div>
               );
             }

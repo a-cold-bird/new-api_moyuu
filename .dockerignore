@@ -8,3 +8,7 @@ docs
 .eslintcache
 .gocache
 /web/node_modules
+.env
+.env.*
+/data
+/logs

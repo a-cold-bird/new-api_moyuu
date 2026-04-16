@@ -19,18 +19,18 @@ For commercial licensing, please contact support@quantumnous.com
 
 import React from 'react';
 import { Button, Dropdown } from '@douyinfe/semi-ui';
-import fireworks from 'react-fireworks';
 
 const NewYearButton = ({ isNewYear }) => {
   if (!isNewYear) {
     return null;
   }
 
-  const handleNewYearClick = () => {
-    fireworks.init('root', {});
-    fireworks.start();
+  const handleNewYearClick = async () => {
+    const fireworks = await import('react-fireworks');
+    fireworks.default.init('root', {});
+    fireworks.default.start();
     setTimeout(() => {
-      fireworks.stop();
+      fireworks.default.stop();
     }, 3000);
   };
 

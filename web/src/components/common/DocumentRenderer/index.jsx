@@ -17,7 +17,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { API, showError } from '../../../helpers';
 import { Empty, Card, Spin, Typography } from '@douyinfe/semi-ui';
 const { Title } = Typography;
@@ -26,7 +26,8 @@ import {
   IllustrationConstructionDark,
 } from '@douyinfe/semi-illustrations';
 import { useTranslation } from 'react-i18next';
-import MarkdownRenderer from '../markdown/MarkdownRenderer';
+
+const MarkdownRenderer = lazy(() => import('../markdown/MarkdownRenderer'));
 
 // Check whether content is a URL.
 const isUrl = (content) => {
@@ -221,7 +222,9 @@ const DocumentRenderer = ({ apiEndpoint, title, cacheKey, emptyMessage }) => {
             {title}
           </Title>
           <div className='prose prose-lg max-w-none'>
-            <MarkdownRenderer content={content} />
+            <Suspense fallback={<div className='text-sm text-semi-color-text-2'>...</div>}>
+              <MarkdownRenderer content={content} />
+            </Suspense>
           </div>
         </div>
       </div>

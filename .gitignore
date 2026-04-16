@@ -31,3 +31,13 @@ data/
 .gopath
 
 token_estimator_test.go
+
+# Local one-off frontend maintenance scripts
+/fix*.js
+/find_*.js
+/format*.js
+/update_*.js
+/test_scroll.js
+
+# Temporary Vite-generated artifacts
+web/*.timestamp-*.mjs

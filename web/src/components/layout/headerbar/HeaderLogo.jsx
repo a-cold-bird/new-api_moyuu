@@ -41,11 +41,9 @@ const HeaderLogo = ({
     <Link to='/' className='group flex items-center gap-2'>
       <div className='relative w-8 h-8 md:w-8 md:h-8'>
         <SkeletonWrapper loading={isLoading || !logoLoaded} type='image' />
-        <img
-          src={logo}
-          alt='logo'
-          className={`absolute inset-0 w-full h-full transition-all duration-200 group-hover:scale-110 rounded-full ${!isLoading && logoLoaded ? 'opacity-100' : 'opacity-0'}`}
-        />
+        <div className={`site-mark-icon absolute inset-0 w-full h-full transition-all duration-200 group-hover:scale-110 rounded-full flex items-center justify-center font-bold text-lg ${!isLoading && logoLoaded ? 'opacity-100' : 'opacity-0'}`}>
+          M
+        </div>
       </div>
       <div className='hidden md:flex items-center gap-2'>
         <div className='flex items-center gap-2'>
@@ -59,7 +57,7 @@ const HeaderLogo = ({
               heading={4}
               className='!text-lg !font-semibold !mb-0'
             >
-              {systemName}
+              Moyuu AI
             </Typography.Title>
           </SkeletonWrapper>
           {(isSelfUseMode || isDemoSiteMode) && !isLoading && (

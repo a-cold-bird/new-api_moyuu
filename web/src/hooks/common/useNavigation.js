@@ -49,27 +49,23 @@ export const useNavigation = (t, docsLink, headerNavModules) => {
         itemKey: 'pricing',
         to: '/pricing',
       },
-      ...(docsLink
+      ...(docsLink || true
         ? [
             {
               text: t('文档'),
               itemKey: 'docs',
               isExternal: true,
-              externalLink: docsLink,
+              externalLink: 'https://docs.moyuu.cc/',
             },
           ]
-        : []),
-      {
-        text: t('关于'),
-        itemKey: 'about',
-        to: '/about',
-      },
+        : [])
     ];
 
     // 根据配置过滤导航链接
     return allLinks.filter((link) => {
       if (link.itemKey === 'docs') {
-        return docsLink && modules.docs;
+        // Force true because we hardcoded it for this site
+        return true;
       }
       if (link.itemKey === 'pricing') {
         // 支持新的pricing配置格式

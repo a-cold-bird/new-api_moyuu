@@ -32,9 +32,11 @@ export default defineConfig({
     },
   },
   plugins: [
-    codeInspectorPlugin({
-      bundler: 'vite',
-    }),
+    process.env.NODE_ENV === 'development'
+      ? codeInspectorPlugin({
+          bundler: 'vite',
+        })
+      : null,
     {
       name: 'treat-js-files-as-jsx',
       async transform(code, id) {
@@ -56,7 +58,6 @@ export default defineConfig({
     }),
   ],
   optimizeDeps: {
-    force: true,
     esbuildOptions: {
       loader: {
         '.js': 'jsx',
@@ -65,6 +66,7 @@ export default defineConfig({
     },
   },
   build: {
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: {
