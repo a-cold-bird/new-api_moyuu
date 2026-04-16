@@ -29,6 +29,7 @@ data/
 .gomodcache/
 .gocache-temp
 .gopath
+/.worktrees
 
 token_estimator_test.go
 
