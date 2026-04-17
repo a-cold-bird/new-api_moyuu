@@ -22,6 +22,35 @@ import { Link } from 'react-router-dom';
 import { Typography, Tag } from '@douyinfe/semi-ui';
 import SkeletonWrapper from '../components/SkeletonWrapper';
 
+const CatTerminalMark = ({ className = '' }) => (
+  <svg
+    viewBox='0 0 64 64'
+    fill='none'
+    xmlns='http://www.w3.org/2000/svg'
+    className={className}
+    aria-hidden='true'
+  >
+    <g opacity='0.3'>
+      <path d='M12 10H52' stroke='currentColor' strokeWidth='0.5' strokeDasharray='2 4' />
+      <path d='M8 20H60' stroke='currentColor' strokeWidth='0.5' strokeDasharray='1 3' />
+      <path d='M8 44H60' stroke='currentColor' strokeWidth='0.5' strokeDasharray='1 3' />
+      <path d='M12 54H52' stroke='currentColor' strokeWidth='0.5' strokeDasharray='2 4' />
+    </g>
+    <rect x='11' y='15' width='42' height='34' rx='5' stroke='currentColor' strokeWidth='1' opacity='0.2' />
+    <rect x='12' y='16' width='40' height='32' rx='4' stroke='currentColor' strokeWidth='2' />
+    <rect x='14' y='18' width='36' height='28' rx='2' fill='currentColor' opacity='0.03' />
+    <path d='M18 16L22 6L26 16' stroke='currentColor' strokeWidth='2' strokeLinejoin='round' />
+    <circle cx='22' cy='12' r='1.5' fill='currentColor' opacity='0.8' />
+    <path d='M38 16L42 6L46 16' stroke='currentColor' strokeWidth='2' strokeLinejoin='round' />
+    <circle cx='42' cy='12' r='1.5' fill='currentColor' opacity='0.8' />
+    <path d='M20 26L26 32L20 38' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round' />
+    <rect x='30' y='36' width='10' height='2.5' rx='1' fill='currentColor' />
+    <circle cx='17.5' cy='21.5' r='1.5' fill='currentColor' opacity='0.4' />
+    <circle cx='23.5' cy='21.5' r='1.5' fill='currentColor' opacity='0.4' />
+    <circle cx='29.5' cy='21.5' r='1.5' fill='currentColor' opacity='0.4' />
+  </svg>
+);
+
 const HeaderLogo = ({
   isMobile,
   isConsoleRoute,
@@ -41,8 +70,8 @@ const HeaderLogo = ({
     <Link to='/' className='group flex items-center gap-2'>
       <div className='relative w-8 h-8 md:w-8 md:h-8'>
         <SkeletonWrapper loading={isLoading || !logoLoaded} type='image' />
-        <div className={`site-mark-icon absolute inset-0 w-full h-full transition-all duration-200 group-hover:scale-110 rounded-full flex items-center justify-center font-bold text-lg ${!isLoading && logoLoaded ? 'opacity-100' : 'opacity-0'}`}>
-          M
+        <div className={`site-mark-icon absolute inset-0 w-full h-full transition-all duration-200 group-hover:scale-110 rounded-full flex items-center justify-center ${!isLoading && logoLoaded ? 'opacity-100' : 'opacity-0'}`}>
+          <CatTerminalMark className='w-full h-full text-current' />
         </div>
       </div>
       <div className='hidden md:flex items-center gap-2'>
