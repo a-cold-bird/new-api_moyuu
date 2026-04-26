@@ -17,7 +17,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Modal,
   Button,
@@ -28,7 +28,8 @@ import {
 } from '@douyinfe/semi-ui';
 import { IconAlertTriangle } from '@douyinfe/semi-icons';
 import { useIsMobile } from '../../../hooks/common/useIsMobile';
-import MarkdownRenderer from '../markdown/MarkdownRenderer';
+
+const MarkdownRenderer = lazy(() => import('../markdown/MarkdownRenderer'));
 
 const { Text } = Typography;
 
@@ -48,7 +49,9 @@ const RiskMarkdownBlock = React.memo(function RiskMarkdownBlock({
         contentVisibility: 'auto',
       }}
     >
-      <MarkdownRenderer content={markdownContent} />
+      <Suspense fallback={<div className='text-sm text-semi-color-text-2'>...</div>}>
+        <MarkdownRenderer content={markdownContent} />
+      </Suspense>
     </div>
   );
 });

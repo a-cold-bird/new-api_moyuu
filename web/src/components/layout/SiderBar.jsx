@@ -20,8 +20,25 @@ For commercial licensing, please contact support@quantumnous.com
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getLucideIcon } from '../../helpers/render';
-import { ChevronLeft } from 'lucide-react';
+import {
+  LayoutDashboard,
+  TerminalSquare,
+  MessageSquare,
+  Key,
+  BarChart3,
+  Image as ImageIcon,
+  CheckSquare,
+  CreditCard,
+  Layers,
+  Gift,
+  User,
+  Settings,
+  CircleUser,
+  Package,
+  Server,
+  CalendarClock,
+  ChevronLeft,
+} from 'lucide-react';
 import { useSidebarCollapsed } from '../../hooks/common/useSidebarCollapsed';
 import { useSidebar } from '../../hooks/common/useSidebar';
 import { useMinimumLoadingTime } from '../../hooks/common/useMinimumLoadingTime';
@@ -50,6 +67,54 @@ const routerMap = {
   playground: '/console/playground',
   personal: '/console/personal',
 };
+
+function getSidebarIcon(key, selected = false) {
+  const size = 16;
+  const strokeWidth = 2;
+  const color = selected ? 'var(--semi-color-primary)' : 'currentColor';
+  const commonProps = {
+    size,
+    strokeWidth,
+    color,
+    className: `transition-colors duration-200 ${selected ? 'transition-transform duration-200 scale-105' : ''}`,
+  };
+
+  switch (key) {
+    case 'detail':
+      return <LayoutDashboard {...commonProps} />;
+    case 'playground':
+      return <TerminalSquare {...commonProps} />;
+    case 'chat':
+      return <MessageSquare {...commonProps} />;
+    case 'token':
+      return <Key {...commonProps} />;
+    case 'log':
+      return <BarChart3 {...commonProps} />;
+    case 'midjourney':
+      return <ImageIcon {...commonProps} />;
+    case 'task':
+      return <CheckSquare {...commonProps} />;
+    case 'topup':
+      return <CreditCard {...commonProps} />;
+    case 'channel':
+      return <Layers {...commonProps} />;
+    case 'redemption':
+      return <Gift {...commonProps} />;
+    case 'user':
+    case 'personal':
+      return <User {...commonProps} />;
+    case 'models':
+      return <Package {...commonProps} />;
+    case 'deployment':
+      return <Server {...commonProps} />;
+    case 'subscription':
+      return <CalendarClock {...commonProps} />;
+    case 'setting':
+      return <Settings {...commonProps} />;
+    default:
+      return <CircleUser {...commonProps} />;
+  }
+}
 
 const SiderBar = ({ onNavigate = () => {} }) => {
   const { t } = useTranslation();
@@ -328,7 +393,7 @@ const SiderBar = ({ onNavigate = () => {} }) => {
         }
         icon={
           <div className='sidebar-icon-container flex-shrink-0'>
-            {getLucideIcon(item.itemKey, isSelected)}
+            {getSidebarIcon(item.itemKey, isSelected)}
           </div>
         }
         className={item.className}
@@ -356,7 +421,7 @@ const SiderBar = ({ onNavigate = () => {} }) => {
           }
           icon={
             <div className='sidebar-icon-container flex-shrink-0'>
-              {getLucideIcon(item.itemKey, isSelected)}
+              {getSidebarIcon(item.itemKey, isSelected)}
             </div>
           }
         >

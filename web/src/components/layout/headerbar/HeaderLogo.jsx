@@ -59,7 +59,7 @@ const HeaderLogo = ({
               heading={4}
               className='!text-lg !font-semibold !mb-0'
             >
-              {systemName}
+              Moyuu AI
             </Typography.Title>
           </SkeletonWrapper>
           {(isSelfUseMode || isDemoSiteMode) && !isLoading && (

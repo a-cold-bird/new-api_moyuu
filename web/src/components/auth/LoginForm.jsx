@@ -23,12 +23,10 @@ import { UserContext } from '../../context/User';
 import { StatusContext } from '../../context/Status';
 import {
   API,
-  getLogo,
   showError,
   showInfo,
   showSuccess,
   updateAPI,
-  getSystemName,
   getOAuthProviderIcon,
   setUserData,
   onGitHubOAuthClicked,
@@ -52,7 +50,6 @@ import {
 } from '@douyinfe/semi-ui';
 import Title from '@douyinfe/semi-ui/lib/es/typography/title';
 import Text from '@douyinfe/semi-ui/lib/es/typography/text';
-import TelegramLoginButton from 'react-telegram-login';
 
 import {
   IconGithubLogo,
@@ -90,6 +87,7 @@ const LoginForm = () => {
   const [turnstileToken, setTurnstileToken] = useState('');
   const [showWeChatLoginModal, setShowWeChatLoginModal] = useState(false);
   const [showEmailLogin, setShowEmailLogin] = useState(false);
+  const [TelegramLoginButton, setTelegramLoginButton] = useState(null);
   const [wechatLoading, setWechatLoading] = useState(false);
   const [githubLoading, setGithubLoading] = useState(false);
   const [discordLoading, setDiscordLoading] = useState(false);
@@ -112,9 +110,7 @@ const LoginForm = () => {
   const githubTimeoutRef = useRef(null);
   const githubButtonText = t(githubButtonTextKeyByState[githubButtonState]);
   const [customOAuthLoading, setCustomOAuthLoading] = useState({});
-
-  const logo = getLogo();
-  const systemName = getSystemName();
+  const displaySystemName = 'Moyuu AI';
 
   let affCode = new URLSearchParams(window.location.search).get('aff');
   if (affCode) {
@@ -165,6 +161,13 @@ const LoginForm = () => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!status.telegram_oauth) return;
+    import('react-telegram-login').then((mod) => {
+      setTelegramLoginButton(() => mod.default);
+    });
+  }, [status.telegram_oauth]);
 
   useEffect(() => {
     if (searchParams.get('expired')) {
@@ -504,16 +507,15 @@ const LoginForm = () => {
     return (
       <div className='flex flex-col items-center'>
         <div className='w-full max-w-md'>
-          <div className='flex items-center justify-center mb-6 gap-2'>
-            <img src={logo} alt='Logo' className='h-10 rounded-full' />
-            <Title heading={3} className='!text-gray-800'>
-              {systemName}
+          <div className='auth-brand mb-6 text-center'>
+            <Title heading={4} className='auth-brand-title'>
+              {displaySystemName}
             </Title>
           </div>
 
-          <Card className='border-0 !rounded-2xl overflow-hidden'>
+          <Card className='auth-card border-0 !rounded-2xl overflow-hidden'>
             <div className='flex justify-center pt-6 pb-2'>
-              <Title heading={3} className='text-gray-800 dark:text-gray-200'>
+              <Title heading={3} className='auth-card-title'>
                 {t('登 录')}
               </Title>
             </div>
@@ -522,7 +524,7 @@ const LoginForm = () => {
                 {status.wechat_login && (
                   <Button
                     theme='outline'
-                    className='w-full h-12 flex items-center justify-center !rounded-full border border-gray-200 hover:bg-gray-50 transition-colors'
+                    className='auth-oauth-btn w-full h-12 flex items-center justify-center !rounded-full transition-colors'
                     type='tertiary'
                     icon={
                       <Icon svg={<WeChatIcon />} style={{ color: '#07C160' }} />
@@ -537,7 +539,7 @@ const LoginForm = () => {
                 {status.github_oauth && (
                   <Button
                     theme='outline'
-                    className='w-full h-12 flex items-center justify-center !rounded-full border border-gray-200 hover:bg-gray-50 transition-colors'
+                    className='auth-oauth-btn w-full h-12 flex items-center justify-center !rounded-full transition-colors'
                     type='tertiary'
                     icon={<IconGithubLogo size='large' />}
                     onClick={handleGitHubClick}
@@ -551,7 +553,7 @@ const LoginForm = () => {
                 {status.discord_oauth && (
                   <Button
                     theme='outline'
-                    className='w-full h-12 flex items-center justify-center !rounded-full border border-gray-200 hover:bg-gray-50 transition-colors'
+                    className='auth-oauth-btn w-full h-12 flex items-center justify-center !rounded-full transition-colors'
                     type='tertiary'
                     icon={
                       <SiDiscord
@@ -572,7 +574,7 @@ const LoginForm = () => {
                 {status.oidc_enabled && (
                   <Button
                     theme='outline'
-                    className='w-full h-12 flex items-center justify-center !rounded-full border border-gray-200 hover:bg-gray-50 transition-colors'
+                    className='auth-oauth-btn w-full h-12 flex items-center justify-center !rounded-full transition-colors'
                     type='tertiary'
                     icon={<OIDCIcon style={{ color: '#1877F2' }} />}
                     onClick={handleOIDCClick}
@@ -585,7 +587,7 @@ const LoginForm = () => {
                 {status.linuxdo_oauth && (
                   <Button
                     theme='outline'
-                    className='w-full h-12 flex items-center justify-center !rounded-full border border-gray-200 hover:bg-gray-50 transition-colors'
+                    className='auth-oauth-btn w-full h-12 flex items-center justify-center !rounded-full transition-colors'
                     type='tertiary'
                     icon={
                       <LinuxDoIcon
@@ -608,7 +610,7 @@ const LoginForm = () => {
                     <Button
                       key={provider.slug}
                       theme='outline'
-                      className='w-full h-12 flex items-center justify-center !rounded-full border border-gray-200 hover:bg-gray-50 transition-colors'
+                      className='auth-oauth-btn w-full h-12 flex items-center justify-center !rounded-full transition-colors'
                       type='tertiary'
                       icon={getOAuthProviderIcon(provider.icon || '', 20)}
                       onClick={() => handleCustomOAuthClick(provider)}
@@ -620,7 +622,7 @@ const LoginForm = () => {
                     </Button>
                   ))}
 
-                {status.telegram_oauth && (
+                {status.telegram_oauth && TelegramLoginButton && (
                   <div className='flex justify-center my-2'>
                     <TelegramLoginButton
                       dataOnauth={onTelegramLoginClicked}
@@ -632,7 +634,7 @@ const LoginForm = () => {
                 {status.passkey_login && passkeySupported && (
                   <Button
                     theme='outline'
-                    className='w-full h-12 flex items-center justify-center !rounded-full border border-gray-200 hover:bg-gray-50 transition-colors'
+                    className='auth-oauth-btn w-full h-12 flex items-center justify-center !rounded-full transition-colors'
                     type='tertiary'
                     icon={<IconKey size='large' />}
                     onClick={handlePasskeyLogin}
@@ -649,7 +651,7 @@ const LoginForm = () => {
                 <Button
                   theme='solid'
                   type='primary'
-                  className='w-full h-12 flex items-center justify-center bg-black text-white !rounded-full hover:bg-gray-800 transition-colors'
+                  className='auth-primary-btn w-full h-12 flex items-center justify-center !rounded-full transition-colors'
                   icon={<IconMail size='large' />}
                   onClick={handleEmailLoginClick}
                   loading={emailLoginLoading}
@@ -672,7 +674,7 @@ const LoginForm = () => {
                             href='/user-agreement'
                             target='_blank'
                             rel='noopener noreferrer'
-                            className='text-blue-600 hover:text-blue-800 mx-1'
+                            className='auth-link mx-1'
                           >
                             {t('用户协议')}
                           </a>
@@ -685,7 +687,7 @@ const LoginForm = () => {
                             href='/privacy-policy'
                             target='_blank'
                             rel='noopener noreferrer'
-                            className='text-blue-600 hover:text-blue-800 mx-1'
+                            className='auth-link mx-1'
                           >
                             {t('隐私政策')}
                           </a>
@@ -702,7 +704,7 @@ const LoginForm = () => {
                     {t('没有账户？')}{' '}
                     <Link
                       to='/register'
-                      className='text-blue-600 hover:text-blue-800 font-medium'
+                      className='auth-link font-medium'
                     >
                       {t('注册')}
                     </Link>
@@ -720,14 +722,13 @@ const LoginForm = () => {
     return (
       <div className='flex flex-col items-center'>
         <div className='w-full max-w-md'>
-          <div className='flex items-center justify-center mb-6 gap-2'>
-            <img src={logo} alt='Logo' className='h-10 rounded-full' />
-            <Title heading={3}>{systemName}</Title>
+          <div className='auth-brand mb-6 text-center'>
+            <Title heading={4} className='auth-brand-title'>{displaySystemName}</Title>
           </div>
 
-          <Card className='border-0 !rounded-2xl overflow-hidden'>
+          <Card className='auth-card border-0 !rounded-2xl overflow-hidden'>
             <div className='flex justify-center pt-6 pb-2'>
-              <Title heading={3} className='text-gray-800 dark:text-gray-200'>
+              <Title heading={3} className='auth-card-title'>
                 {t('登 录')}
               </Title>
             </div>
@@ -778,7 +779,7 @@ const LoginForm = () => {
                               href='/user-agreement'
                               target='_blank'
                               rel='noopener noreferrer'
-                              className='text-blue-600 hover:text-blue-800 mx-1'
+                              className='auth-link mx-1'
                             >
                               {t('用户协议')}
                             </a>
@@ -791,7 +792,7 @@ const LoginForm = () => {
                               href='/privacy-policy'
                               target='_blank'
                               rel='noopener noreferrer'
-                              className='text-blue-600 hover:text-blue-800 mx-1'
+                              className='auth-link mx-1'
                             >
                               {t('隐私政策')}
                             </a>
@@ -855,7 +856,7 @@ const LoginForm = () => {
                     {t('没有账户？')}{' '}
                     <Link
                       to='/register'
-                      className='text-blue-600 hover:text-blue-800 font-medium'
+                      className='auth-link font-medium'
                     >
                       {t('注册')}
                     </Link>
@@ -947,17 +948,9 @@ const LoginForm = () => {
   };
 
   return (
-    <div className='relative overflow-hidden bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8'>
-      {/* 背景模糊晕染球 */}
-      <div
-        className='blur-ball blur-ball-indigo'
-        style={{ top: '-80px', right: '-80px', transform: 'none' }}
-      />
-      <div
-        className='blur-ball blur-ball-teal'
-        style={{ top: '50%', left: '-120px' }}
-      />
-      <div className='w-full max-w-sm mt-[60px]'>
+    <div className='auth-shell relative overflow-visible flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8'>
+      
+      <div className='w-full max-w-md'>
         {showEmailLogin ||
         !hasOAuthLoginOptions
           ? renderEmailLoginForm()

@@ -72,6 +72,8 @@ const defaultGlobalSettingInputs = {
   'global.chat_completions_to_responses_policy': '{}',
   'general_setting.ping_interval_enabled': false,
   'general_setting.ping_interval_seconds': 60,
+  'general_setting.image_keep_alive_enabled': false,
+  'general_setting.image_keep_alive_seconds': 30,
 };
 
 export default function SettingGlobalModel(props) {
@@ -398,6 +400,54 @@ export default function SettingGlobalModel(props) {
                     }
                     min={1}
                     disabled={!inputs['general_setting.ping_interval_enabled']}
+                  />
+                </Col>
+              </Row>
+            </Form.Section>
+
+            <Form.Section
+              text={
+                <span style={{ fontSize: 14, fontWeight: 600 }}>
+                  {t('图片接口保活设置')}
+                </span>
+              }
+            >
+              <Row style={{ marginTop: 10 }}>
+                <Col span={24}>
+                  <Banner
+                    type='warning'
+                    description={t(
+                      '警告：启用后，图片生成请求（如 gpt-image-2）在等待上游响应期间将定期发送保活数据，防止 Cloudflare 等反向代理超时断开。启用后若上游出错，系统无法重试。',
+                    )}
+                  />
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+                  <Form.Switch
+                    label={t('启用图片接口保活')}
+                    field={'general_setting.image_keep_alive_enabled'}
+                    onChange={(value) =>
+                      setInputs({
+                        ...inputs,
+                        'general_setting.image_keep_alive_enabled': value,
+                      })
+                    }
+                    extraText={t('开启后，图片生成接口将定期发送保活数据防止连接超时')}
+                  />
+                </Col>
+                <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+                  <Form.InputNumber
+                    label={t('保活间隔（秒）')}
+                    field={'general_setting.image_keep_alive_seconds'}
+                    onChange={(value) =>
+                      setInputs({
+                        ...inputs,
+                        'general_setting.image_keep_alive_seconds': value,
+                      })
+                    }
+                    min={5}
+                    disabled={!inputs['general_setting.image_keep_alive_enabled']}
                   />
                 </Col>
               </Row>

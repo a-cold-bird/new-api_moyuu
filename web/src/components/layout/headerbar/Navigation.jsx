@@ -29,12 +29,7 @@ const Navigation = ({
   pricingRequireAuth,
 }) => {
   const renderNavLinks = () => {
-    const baseClasses =
-      'flex-shrink-0 flex items-center gap-1 font-semibold rounded-md transition-all duration-200 ease-in-out';
-    const hoverClasses = 'hover:text-semi-color-primary';
-    const spacingClasses = isMobile ? 'p-1' : 'p-2';
-
-    const commonLinkClasses = `${baseClasses} ${spacingClasses} ${hoverClasses}`;
+    const commonLinkClasses = 'header-nav-link flex items-center justify-center h-8 px-3 mx-0.5 rounded-[10px] text-[13.5px] font-medium text-semi-color-text-1 hover:text-semi-color-text-0 hover:bg-semi-color-fill-0 transition-all duration-200';
 
     return mainNavLinks.map((link) => {
       const linkContent = <span>{link.text}</span>;
@@ -70,7 +65,7 @@ const Navigation = ({
   };
 
   return (
-    <nav className='flex flex-1 items-center gap-1 lg:gap-2 mx-2 md:mx-4 overflow-x-auto whitespace-nowrap scrollbar-hide'>
+    <nav className='header-nav-container flex flex-1 items-center gap-1 lg:gap-2 mx-2 md:mx-4 overflow-x-auto whitespace-nowrap scrollbar-hide'>
       <SkeletonWrapper
         loading={isLoading}
         type='navigation'

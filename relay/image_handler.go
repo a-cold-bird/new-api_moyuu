@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/constant"
@@ -15,6 +16,7 @@ import (
 	"github.com/QuantumNous/new-api/relay/helper"
 	"github.com/QuantumNous/new-api/service"
 	"github.com/QuantumNous/new-api/setting/model_setting"
+	"github.com/QuantumNous/new-api/setting/operation_setting"
 	"github.com/QuantumNous/new-api/types"
 
 	"github.com/gin-gonic/gin"
@@ -85,8 +87,71 @@ func ImageHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *type
 
 	statusCodeMappingStr := c.GetString("status_code_mapping")
 
-	resp, err := adaptor.DoRequest(c, info, requestBody)
+	generalSettings := operation_setting.GetGeneralSetting()
+	keepAliveEnabled := generalSettings.ImageKeepAliveEnabled
+	keepAliveInterval := generalSettings.ImageKeepAliveSeconds
+	if keepAliveInterval < 5 {
+		keepAliveInterval = 30
+	}
+
+	type doRequestResult struct {
+		resp any
+		err  error
+	}
+	resultCh := make(chan doRequestResult, 1)
+
+	go func() {
+		r, e := adaptor.DoRequest(c, info, requestBody)
+		resultCh <- doRequestResult{resp: r, err: e}
+	}()
+
+	// If keep-alive enabled, immediately send headers and first byte
+	// to reset CF's 120s Proxy Read Timeout, then heartbeat periodically.
+	heartbeatStarted := false
+	var result doRequestResult
+
+	if keepAliveEnabled {
+		heartbeatStarted = true
+		c.Writer.Header().Set("Content-Type", "application/json")
+		c.Writer.Header().Set("Transfer-Encoding", "chunked")
+		c.Writer.Header().Set("X-Accel-Buffering", "no")
+		c.Writer.Header().Set("Cache-Control", "no-cache, no-transform")
+		c.Writer.WriteHeader(http.StatusOK)
+		// Send a padding block to force proxies to flush immediately.
+		_, _ = c.Writer.Write([]byte(" "))
+		if flusher, ok := c.Writer.(http.Flusher); ok {
+			flusher.Flush()
+		}
+
+		ticker := time.NewTicker(time.Duration(keepAliveInterval) * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case result = <-resultCh:
+				ticker.Stop()
+				goto doneWaiting
+			case <-ticker.C:
+				_, _ = c.Writer.Write([]byte(" "))
+				if flusher, ok := c.Writer.(http.Flusher); ok {
+					flusher.Flush()
+				}
+			}
+		}
+	} else {
+		result = <-resultCh
+	}
+doneWaiting:
+
+	resp := result.resp
+	err = result.err
+
 	if err != nil {
+		if heartbeatStarted {
+			errBody := fmt.Sprintf(`{"error":{"message":"%s","type":"upstream_error"}}`, err.Error())
+			_, _ = c.Writer.Write([]byte(errBody))
+			c.Writer.Flush()
+			return nil
+		}
 		return types.NewOpenAIError(err, types.ErrorCodeDoRequestFailed, http.StatusInternalServerError)
 	}
 	var httpResp *http.Response
@@ -95,20 +160,69 @@ func ImageHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *type
 		info.IsStream = info.IsStream || strings.HasPrefix(httpResp.Header.Get("Content-Type"), "text/event-stream")
 		if httpResp.StatusCode != http.StatusOK {
 			if httpResp.StatusCode == http.StatusCreated && info.ApiType == constant.APITypeReplicate {
-				// replicate channel returns 201 Created when using Prefer: wait, treat it as success.
 				httpResp.StatusCode = http.StatusOK
 			} else {
 				newAPIError = service.RelayErrorHandler(c.Request.Context(), httpResp, false)
-				// reset status code 重置状态码
 				service.ResetStatusCode(newAPIError, statusCodeMappingStr)
+				if heartbeatStarted {
+					errJSON, _ := common.Marshal(newAPIError)
+					_, _ = c.Writer.Write(errJSON)
+					c.Writer.Flush()
+					return nil
+				}
 				return newAPIError
 			}
 		}
 	}
 
+	if heartbeatStarted {
+		defer service.CloseResponseBodyGracefully(httpResp)
+		responseBody, readErr := io.ReadAll(httpResp.Body)
+		if readErr != nil {
+			errBody := fmt.Sprintf(`{"error":{"message":"read upstream failed: %s","type":"proxy_error"}}`, readErr.Error())
+			_, _ = c.Writer.Write([]byte(errBody))
+			c.Writer.Flush()
+			return nil
+		}
+		_, _ = c.Writer.Write(responseBody)
+		c.Writer.Flush()
+
+		var usageResp dto.SimpleResponse
+		if parseErr := common.Unmarshal(responseBody, &usageResp); parseErr == nil {
+			if usageResp.Usage.TotalTokens == 0 {
+				usageResp.Usage.TotalTokens = 1
+			}
+			if usageResp.Usage.PromptTokens == 0 {
+				usageResp.Usage.PromptTokens = 1
+			}
+			imageN := uint(1)
+			if request.N != nil {
+				imageN = *request.N
+			}
+			if _, hasN := info.PriceData.OtherRatios["n"]; !hasN {
+				info.PriceData.AddOtherRatio("n", float64(imageN))
+			}
+			quality := "standard"
+			if request.Quality == "hd" {
+				quality = "hd"
+			}
+			var logContent []string
+			if len(request.Size) > 0 {
+				logContent = append(logContent, fmt.Sprintf("大小 %s", request.Size))
+			}
+			if len(quality) > 0 {
+				logContent = append(logContent, fmt.Sprintf("品质 %s", quality))
+			}
+			if imageN > 0 {
+				logContent = append(logContent, fmt.Sprintf("生成数量 %d", imageN))
+			}
+			service.PostTextConsumeQuota(c, info, &usageResp.Usage, logContent)
+		}
+		return nil
+	}
+
 	usage, newAPIError := adaptor.DoResponse(c, httpResp, info)
 	if newAPIError != nil {
-		// reset status code 重置状态码
 		service.ResetStatusCode(newAPIError, statusCodeMappingStr)
 		return newAPIError
 	}

@@ -62,14 +62,21 @@ const PageLayout = () => {
     '/pricing',
   ];
 
-  const shouldHideFooter = cardProPages.includes(location.pathname);
+  const shouldHideFooter =
+    cardProPages.includes(location.pathname) || location.pathname === '/';
 
   const shouldInnerPadding =
     location.pathname.includes('/console') &&
     !location.pathname.startsWith('/console/chat') &&
     location.pathname !== '/console/playground';
 
+  const isAuthRoute =
+    location.pathname === '/login' ||
+    location.pathname === '/register' ||
+    location.pathname === '/reset';
+
   const isConsoleRoute = location.pathname.startsWith('/console');
+  const isHomeRoute = location.pathname === '/';
   const showSider = isConsoleRoute && (!isMobile || drawerOpen);
 
   useEffect(() => {
@@ -204,6 +211,7 @@ const PageLayout = () => {
                 ? 'var(--sidebar-current-width)'
                 : '0',
             flex: '1 1 auto',
+            overflow: isMobile ? 'visible' : isHomeRoute ? 'hidden' : 'auto',
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -211,7 +219,7 @@ const PageLayout = () => {
           <Content
             style={{
               flex: '1 0 auto',
-              overflowY: isMobile ? 'visible' : 'hidden',
+              overflowY: isMobile ? 'visible' : isAuthRoute ? 'auto' : 'hidden',
               WebkitOverflowScrolling: 'touch',
               padding: shouldInnerPadding ? (isMobile ? '5px' : '24px') : '0',
               position: 'relative',
