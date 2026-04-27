@@ -32,6 +32,53 @@ import { ScrollStage } from '../../components/home/ScrollStage';
 import { LogoTile } from '../../components/home/LogoTile';
 import { CodeTerminal } from './CodeTerminal';
 import './home-moeyuu.css';
+
+const RollingDigit = ({ digit, prevDigit }) => {
+  const changed = digit !== prevDigit;
+  return (
+    <span
+      className="rolling-digit-wrap"
+      key={changed ? digit + '-' + Date.now() : undefined}
+    >
+      <span className={changed ? 'rolling-digit rolling-digit-animate' : 'rolling-digit'}>
+        {digit}
+      </span>
+    </span>
+  );
+};
+
+const RollingNumber = ({ value, suffix = '', compact = false }) => {
+  const prevRef = useRef('');
+  let display;
+  if (compact && value >= 1000000000) {
+    display = (value / 1000000000).toFixed(2) + 'B';
+  } else if (compact && value >= 1000000) {
+    display = (value / 1000000).toFixed(1) + 'M';
+  } else {
+    display = value.toLocaleString();
+  }
+  const current = display + suffix;
+  const prev = prevRef.current || current;
+
+  useEffect(() => {
+    prevRef.current = current;
+  }, [current]);
+
+  const maxLen = Math.max(current.length, prev.length);
+  const padCurrent = current.padStart(maxLen);
+  const padPrev = prev.padStart(maxLen);
+
+  return (
+    <span className="rolling-number" style={{ fontVariantNumeric: 'tabular-nums' }}>
+      {padCurrent.split('').map((ch, i) => {
+        const isDigit = /\d/.test(ch);
+        if (!isDigit) return <span key={i}>{ch}</span>;
+        return <RollingDigit key={i} digit={ch} prevDigit={padPrev[i]} />;
+      })}
+    </span>
+  );
+};
+
 import {
   Claude,
   Gemini,
@@ -150,6 +197,19 @@ const Home = () => {
   const currentYear = new Date().getFullYear();
   const version = 'v1.0.0';
   const shellRef = useRef(null);
+  const [siteStats, setSiteStats] = useState({ total_users: 0, total_tokens: 0 });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await API.get('/api/leaderboard/stats');
+        if (res.data.success) setSiteStats(res.data.data);
+      } catch {}
+    };
+    fetchStats();
+    const interval = setInterval(fetchStats, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const displayHomePageContent = async () => {
     setHomePageContent(localStorage.getItem('home_page_content') || '');
@@ -285,6 +345,23 @@ const Home = () => {
                       </a>
                     )}
                   </div>
+
+                  <div className="flex items-center gap-6 sm:gap-10 py-2">
+                    <div className="flex flex-col">
+                      <span className="text-2xl sm:text-3xl font-bold tracking-tight text-semi-color-text-0">
+                        <RollingNumber value={siteStats.total_tokens} suffix="" compact />
+                      </span>
+                      <span className="text-[12px] text-semi-color-text-2 mt-0.5">Tokens Processed</span>
+                    </div>
+                    <div className="w-px h-8 bg-semi-color-border" />
+                    <div className="flex flex-col">
+                      <span className="text-2xl sm:text-3xl font-bold tracking-tight text-semi-color-text-0">
+                        <RollingNumber value={siteStats.total_users} suffix="+" compact={false} />
+                      </span>
+                      <span className="text-[12px] text-semi-color-text-2 mt-0.5">Registered Users</span>
+                    </div>
+                  </div>
+
                   <div className="grid gap-3 text-[13px] text-semi-color-text-2 sm:grid-cols-3">
                     <div className="home-inline-metric"><span>OpenAI-compatible</span><strong className="text-semi-color-text-0">标准协议响应</strong></div>
                     <div className="home-inline-metric"><span>Anthropic / Gemini</span><strong className="text-semi-color-text-0">全局无缝调度</strong></div>
@@ -426,7 +503,7 @@ const Home = () => {
 
           {/* Final CTA Banner */}
           <section className="home-page-panel relative px-4 sm:px-6 lg:px-8">
-            <div className="mx-auto flex min-h-[calc(100vh-64px)] max-w-[1200px] flex-col justify-between py-8 sm:py-10">
+            <div className="mx-auto flex min-h-[calc(100vh-64px)] max-w-[1200px] flex-col py-8 sm:py-10">
               <div className="flex flex-1 items-center justify-center text-center">
                 <div className="relative w-full overflow-hidden rounded-[2rem] bg-gradient-to-br from-semi-color-bg-0 to-semi-color-bg-1 border border-semi-color-border p-8 sm:p-12 shadow-xl">
                   <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent pointer-events-none" />
@@ -446,12 +523,15 @@ const Home = () => {
                           阅读完整文档
                         </a>
                       )}
+                      <a href="https://qm.qq.com/q/rhngEU31OS" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center rounded-xl border border-semi-color-border bg-semi-color-bg-0 px-8 py-3 text-[15px] font-medium text-semi-color-text-0 transition-all hover:bg-semi-color-bg-1 active:scale-[0.98]">
+                        加入摸鱼群组
+                      </a>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <footer className="w-full pb-2 pt-8">
+              <footer className="w-full mt-auto pt-8 pb-2">
                 <div className="flex flex-col gap-6 border-t border-semi-color-border pt-6 md:flex-row md:items-center md:justify-between">
                   <div className="flex flex-wrap gap-x-6 gap-y-3 text-[13px] font-medium text-semi-color-text-2">
                     <a href="https://docs.moyuu.cc/" target="_blank" rel="noreferrer" className="transition-colors hover:text-semi-color-text-0">关于</a>

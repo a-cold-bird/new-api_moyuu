@@ -38,6 +38,7 @@ import {
   Server,
   CalendarClock,
   ChevronLeft,
+  Trophy,
 } from 'lucide-react';
 import { useSidebarCollapsed } from '../../hooks/common/useSidebarCollapsed';
 import { useSidebar } from '../../hooks/common/useSidebar';
@@ -66,6 +67,7 @@ const routerMap = {
   deployment: '/console/deployment',
   playground: '/console/playground',
   personal: '/console/personal',
+  leaderboard: '/leaderboard',
 };
 
 function getSidebarIcon(key, selected = false) {
@@ -94,6 +96,8 @@ function getSidebarIcon(key, selected = false) {
       return <ImageIcon {...commonProps} />;
     case 'task':
       return <CheckSquare {...commonProps} />;
+    case 'leaderboard':
+      return <Trophy {...commonProps} />;
     case 'topup':
       return <CreditCard {...commonProps} />;
     case 'channel':
@@ -169,6 +173,11 @@ const SiderBar = ({ onNavigate = () => {} }) => {
         to: '/task',
         className:
           localStorage.getItem('enable_task') === 'true' ? '' : 'tableHiddle',
+      },
+      {
+        text: t('排行榜'),
+        itemKey: 'leaderboard',
+        to: '/leaderboard',
       },
     ];
 

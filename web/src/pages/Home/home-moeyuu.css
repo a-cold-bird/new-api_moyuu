@@ -674,3 +674,38 @@ body[theme-mode="dark"] .home-gradient-text, html.dark .home-gradient-text {
   position: relative;
   z-index: 1;
 }
+
+/* Rolling number animation */
+.rolling-number {
+  display: inline-flex;
+  overflow: hidden;
+}
+
+.rolling-digit-wrap {
+  display: inline-block;
+  overflow: hidden;
+  height: 1.2em;
+  line-height: 1.2em;
+}
+
+.rolling-digit {
+  display: inline-block;
+}
+
+.rolling-digit-animate {
+  animation: rollDigit 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes rollDigit {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

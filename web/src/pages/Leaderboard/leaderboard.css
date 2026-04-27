@@ -1,0 +1,148 @@
+.lb-page {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px;
+  padding-top: 80px;
+}
+
+.lb-container {
+  width: 100%;
+  max-width: 960px;
+}
+
+.lb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.lb-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--semi-color-text-0);
+  letter-spacing: -0.02em;
+}
+
+.lb-period-group {
+  display: inline-flex;
+  border: 1px solid var(--semi-color-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.lb-period-btn {
+  padding: 6px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  background: var(--semi-color-bg-1);
+  color: var(--semi-color-text-2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.lb-period-btn:not(:last-child) {
+  border-right: 1px solid var(--semi-color-border);
+}
+
+.lb-period-btn:hover {
+  background: var(--semi-color-fill-0);
+}
+
+.lb-period-btn.active {
+  background: var(--semi-color-primary);
+  color: #fff;
+}
+
+.lb-myrank {
+  border: 1px solid var(--semi-color-border);
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  background: var(--semi-color-bg-1);
+}
+
+.lb-myrank-inner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--semi-color-text-1);
+}
+
+.lb-myrank-label strong {
+  font-size: 16px;
+  color: var(--semi-color-text-0);
+}
+
+.lb-myrank-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--semi-color-border);
+}
+
+.lb-myrank-stat {
+  color: var(--semi-color-text-2);
+}
+
+.lb-tabs {
+  margin-top: 4px;
+}
+
+.lb-table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.lb-col-sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.lb-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.lb-rank-gold {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.lb-rank-silver {
+  background: linear-gradient(135deg, #9ca3af, #6b7280);
+}
+
+.lb-rank-bronze {
+  background: linear-gradient(135deg, #d97706, #92400e);
+}
+
+.lb-rank-num {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--semi-color-text-2);
+  padding-left: 6px;
+}
+
+@media (max-width: 768px) {
+  .lb-page {
+    padding: 16px 8px;
+  }
+  .lb-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

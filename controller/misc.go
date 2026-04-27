@@ -99,6 +99,12 @@ func GetStatus(c *gin.Context) {
 		"announcements_enabled": cs.AnnouncementsEnabled,
 		"faq_enabled":           cs.FAQEnabled,
 
+		// 排行榜配置
+		"leaderboard_enabled":      operation_setting.GetGeneralSetting().LeaderboardEnabled,
+		"leaderboard_show_quota":   operation_setting.GetGeneralSetting().LeaderboardShowQuota,
+		"leaderboard_show_tokens":  operation_setting.GetGeneralSetting().LeaderboardShowTokens,
+		"leaderboard_show_count":   operation_setting.GetGeneralSetting().LeaderboardShowCount,
+
 		// 模块管理配置
 		"HeaderNavModules":    common.OptionMap["HeaderNavModules"],
 		"SidebarModulesAdmin": common.OptionMap["SidebarModulesAdmin"],

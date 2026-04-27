@@ -27,7 +27,7 @@ export const useNavigation = (t, docsLink, headerNavModules) => {
       console: true,
       pricing: true,
       docs: true,
-      about: true,
+      leaderboard: true,
     };
 
     // 使用传入的配置或默认配置
@@ -60,9 +60,9 @@ export const useNavigation = (t, docsLink, headerNavModules) => {
           ]
         : []),
       {
-        text: t('关于'),
-        itemKey: 'about',
-        to: '/about',
+        text: t('排行榜'),
+        itemKey: 'leaderboard',
+        to: '/leaderboard',
       },
     ];
 

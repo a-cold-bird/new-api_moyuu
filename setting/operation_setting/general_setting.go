@@ -16,6 +16,10 @@ type GeneralSetting struct {
 	PingIntervalSeconds int    `json:"ping_interval_seconds"`
 	ImageKeepAliveEnabled bool   `json:"image_keep_alive_enabled"`
 	ImageKeepAliveSeconds int    `json:"image_keep_alive_seconds"`
+	LeaderboardEnabled    bool   `json:"leaderboard_enabled"`
+	LeaderboardShowQuota  bool   `json:"leaderboard_show_quota"`
+	LeaderboardShowTokens bool   `json:"leaderboard_show_tokens"`
+	LeaderboardShowCount  bool   `json:"leaderboard_show_count"`
 	// 当前站点额度展示类型：USD / CNY / TOKENS
 	QuotaDisplayType string `json:"quota_display_type"`
 	// 自定义货币符号，用于 CUSTOM 展示类型
@@ -31,6 +35,10 @@ var generalSetting = GeneralSetting{
 	PingIntervalSeconds:        60,
 	ImageKeepAliveEnabled:      false,
 	ImageKeepAliveSeconds:      30,
+	LeaderboardEnabled:         false,
+	LeaderboardShowQuota:       false,
+	LeaderboardShowTokens:      true,
+	LeaderboardShowCount:       true,
 	QuotaDisplayType:           QuotaDisplayTypeUSD,
 	CustomCurrencySymbol:       "¤",
 	CustomCurrencyExchangeRate: 1.0,

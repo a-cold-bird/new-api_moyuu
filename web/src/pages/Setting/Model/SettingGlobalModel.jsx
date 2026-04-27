@@ -74,6 +74,10 @@ const defaultGlobalSettingInputs = {
   'general_setting.ping_interval_seconds': 60,
   'general_setting.image_keep_alive_enabled': false,
   'general_setting.image_keep_alive_seconds': 30,
+  'general_setting.leaderboard_enabled': false,
+  'general_setting.leaderboard_show_quota': false,
+  'general_setting.leaderboard_show_tokens': true,
+  'general_setting.leaderboard_show_count': true,
 };
 
 export default function SettingGlobalModel(props) {
@@ -448,6 +452,71 @@ export default function SettingGlobalModel(props) {
                     }
                     min={5}
                     disabled={!inputs['general_setting.image_keep_alive_enabled']}
+                  />
+                </Col>
+              </Row>
+            </Form.Section>
+
+            <Form.Section
+              text={
+                <span style={{ fontSize: 14, fontWeight: 600 }}>
+                  {t('排行榜设置')}
+                </span>
+              }
+            >
+              <Row>
+                <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+                  <Form.Switch
+                    label={t('启用排行榜')}
+                    field={'general_setting.leaderboard_enabled'}
+                    onChange={(value) =>
+                      setInputs({
+                        ...inputs,
+                        'general_setting.leaderboard_enabled': value,
+                      })
+                    }
+                    extraText={t('开启后，用户可查看消费和模型使用排行')}
+                  />
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={24} sm={8} md={8} lg={8} xl={8}>
+                  <Form.Switch
+                    label={t('显示消费金额')}
+                    field={'general_setting.leaderboard_show_quota'}
+                    onChange={(value) =>
+                      setInputs({
+                        ...inputs,
+                        'general_setting.leaderboard_show_quota': value,
+                      })
+                    }
+                    disabled={!inputs['general_setting.leaderboard_enabled']}
+                  />
+                </Col>
+                <Col xs={24} sm={8} md={8} lg={8} xl={8}>
+                  <Form.Switch
+                    label={t('显示Token用量')}
+                    field={'general_setting.leaderboard_show_tokens'}
+                    onChange={(value) =>
+                      setInputs({
+                        ...inputs,
+                        'general_setting.leaderboard_show_tokens': value,
+                      })
+                    }
+                    disabled={!inputs['general_setting.leaderboard_enabled']}
+                  />
+                </Col>
+                <Col xs={24} sm={8} md={8} lg={8} xl={8}>
+                  <Form.Switch
+                    label={t('显示调用次数')}
+                    field={'general_setting.leaderboard_show_count'}
+                    onChange={(value) =>
+                      setInputs({
+                        ...inputs,
+                        'general_setting.leaderboard_show_count': value,
+                      })
+                    }
+                    disabled={!inputs['general_setting.leaderboard_enabled']}
                   />
                 </Col>
               </Row>
