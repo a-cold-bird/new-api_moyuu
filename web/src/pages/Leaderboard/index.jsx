@@ -44,7 +44,7 @@ const Leaderboard = () => {
   const showTokens = status.leaderboard_show_tokens !== false;
   const showCount = status.leaderboard_show_count !== false;
 
-  const [period, setPeriod] = useState('30d');
+  const [period, setPeriod] = useState('24h');
   const [tab, setTab] = useState('users');
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState([]);
@@ -104,6 +104,7 @@ const Leaderboard = () => {
   }
 
   const buildColumns = (nameTitle, nameKey) => {
+    const defaultSortKey = showQuota ? 'total_quota' : showTokens ? 'total_tokens' : null;
     const cols = [
       {
         title: '#',
@@ -124,6 +125,7 @@ const Leaderboard = () => {
         dataIndex: 'total_quota',
         key: 'total_quota',
         sorter: (a, b) => a.total_quota - b.total_quota,
+        defaultSortOrder: defaultSortKey === 'total_quota' ? 'descend' : undefined,
         render: (val) => <Tag color="blue" size="small">{formatQuotaDisplay(val)}</Tag>,
       });
     }
@@ -133,6 +135,7 @@ const Leaderboard = () => {
         dataIndex: 'total_tokens',
         key: 'total_tokens',
         sorter: (a, b) => a.total_tokens - b.total_tokens,
+        defaultSortOrder: defaultSortKey === 'total_tokens' ? 'descend' : undefined,
         render: (val) => formatNumber(val),
       });
     }

@@ -59,7 +59,7 @@ func GetLeaderboard(c *gin.Context) {
 		return
 	}
 
-	period := c.DefaultQuery("period", "30d")
+	period := c.DefaultQuery("period", "24h")
 	tab := c.DefaultQuery("tab", "users")
 	cacheKey := fmt.Sprintf("leaderboard:%s:%s", tab, period)
 	startTs, endTs := getTimestampRange(period)
@@ -80,7 +80,7 @@ func GetMyRank(c *gin.Context) {
 	}
 
 	userId := c.GetInt("id")
-	period := c.DefaultQuery("period", "30d")
+	period := c.DefaultQuery("period", "24h")
 	startTs, endTs := getTimestampRange(period)
 
 	entry, err := model.GetUserRank(userId, startTs, endTs)
