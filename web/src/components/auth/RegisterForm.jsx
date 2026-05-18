@@ -229,6 +229,7 @@ const RegisterForm = () => {
   }
 
   async function handleSubmit(e) {
+    if (!ensureAgreementAccepted()) return;
     if (password.length < 8) {
       showInfo('密码长度不得小于 8 位！');
       return;

@@ -18,6 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useEffect, useState, useMemo, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Typography } from '@douyinfe/semi-ui';
 import { getFooterHTML, getLogo, getSystemName } from '../../helpers';
@@ -29,6 +30,9 @@ const FooterBar = () => {
   const [statusState] = useContext(StatusContext);
   const version = 'v1.0.0';
 
+  const userAgreementEnabled = statusState?.status?.user_agreement_enabled === true;
+  const privacyPolicyEnabled = statusState?.status?.privacy_policy_enabled === true;
+
   const loadFooter = () => {
     let footer_html = localStorage.getItem('footer_html');
     if (footer_html) {
@@ -38,21 +42,27 @@ const FooterBar = () => {
 
   const currentYear = new Date().getFullYear();
 
+  const linkClass = 'hover:text-semi-color-text-0 transition-colors';
+
   const customFooter = useMemo(
     () => (
       <footer className='w-full border-t border-semi-color-border py-8 px-6 md:px-12 flex flex-col items-center justify-between' style={{ background: 'transparent' }}>
         <div className='w-full max-w-[1200px] flex flex-col md:flex-row justify-between items-start md:items-center gap-6'>
-          
-          <div className='flex gap-6 text-[13px] font-medium text-semi-color-text-2'>
-            <a href='https://docs.moyuu.cc/' target='_blank' rel='noopener noreferrer' className='hover:text-semi-color-text-0 transition-colors'>
+
+          <div className='flex flex-wrap gap-x-6 gap-y-2 text-[13px] font-medium text-semi-color-text-2'>
+            <a href='https://docs.moyuu.cc/' target='_blank' rel='noopener noreferrer' className={linkClass}>
               {t('关于')}
             </a>
-            <a href='https://docs.moyuu.cc/' target='_blank' rel='noopener noreferrer' className='hover:text-semi-color-text-0 transition-colors'>
-              {t('服务条款')}
-            </a>
-            <a href='https://docs.moyuu.cc/' target='_blank' rel='noopener noreferrer' className='hover:text-semi-color-text-0 transition-colors'>
-              {t('使用政策')}
-            </a>
+            {userAgreementEnabled && (
+              <Link to='/user-agreement' className={linkClass}>
+                {t('用户协议')}
+              </Link>
+            )}
+            {privacyPolicyEnabled && (
+              <Link to='/privacy-policy' className={linkClass}>
+                {t('隐私政策')}
+              </Link>
+            )}
           </div>
 
         </div>
@@ -77,7 +87,7 @@ const FooterBar = () => {
         </div>
       </footer>
     ),
-    [t, currentYear, version],
+    [t, currentYear, version, userAgreementEnabled, privacyPolicyEnabled],
   );
 
   useEffect(() => {
