@@ -31,3 +31,5 @@ data/
 .gopath
 
 token_estimator_test.go
+# Local working notes
+agent.md
