@@ -50,13 +50,17 @@ const ActionButtons = ({
         t={t}
       />
 
-      <ThemeToggle theme={theme} onThemeToggle={onThemeToggle} t={t} />
+      <div className='hidden md:flex'>
+        <ThemeToggle theme={theme} onThemeToggle={onThemeToggle} t={t} />
+      </div>
 
-      <LanguageSelector
-        currentLang={currentLang}
-        onLanguageChange={onLanguageChange}
-        t={t}
-      />
+      <div className='hidden md:block'>
+        <LanguageSelector
+          currentLang={currentLang}
+          onLanguageChange={onLanguageChange}
+          t={t}
+        />
+      </div>
 
       <UserArea
         userState={userState}
@@ -66,6 +70,10 @@ const ActionButtons = ({
         logout={logout}
         navigate={navigate}
         t={t}
+        theme={theme}
+        onThemeToggle={onThemeToggle}
+        currentLang={currentLang}
+        onLanguageChange={onLanguageChange}
       />
     </div>
   );

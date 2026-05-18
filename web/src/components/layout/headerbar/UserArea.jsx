@@ -20,7 +20,7 @@ For commercial licensing, please contact support@quantumnous.com
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Avatar, Button, Dropdown, Typography } from '@douyinfe/semi-ui';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Moon, Sun, Languages } from 'lucide-react';
 import {
   IconExit,
   IconUserSetting,
@@ -28,7 +28,18 @@ import {
   IconKey,
 } from '@douyinfe/semi-icons';
 import { stringToColor } from '../../../helpers';
+import { useActualTheme } from '../../../context/Theme';
 import SkeletonWrapper from '../components/SkeletonWrapper';
+
+const LANG_OPTIONS = [
+  { code: 'zh-CN', label: '简体中文' },
+  { code: 'zh-TW', label: '繁體中文' },
+  { code: 'en', label: 'English' },
+  { code: 'fr', label: 'Français' },
+  { code: 'ja', label: '日本語' },
+  { code: 'ru', label: 'Русский' },
+  { code: 'vi', label: 'Tiếng Việt' },
+];
 
 const UserArea = ({
   userState,
@@ -38,8 +49,14 @@ const UserArea = ({
   logout,
   navigate,
   t,
+  theme,
+  onThemeToggle,
+  currentLang,
+  onLanguageChange,
 }) => {
   const dropdownRef = useRef(null);
+  const actualTheme = useActualTheme();
+  const isDark = actualTheme === 'dark';
   if (isLoading) {
     return (
       <SkeletonWrapper
@@ -101,6 +118,47 @@ const UserArea = ({
                   <span>{t('钱包管理')}</span>
                 </div>
               </Dropdown.Item>
+              {isMobile && onThemeToggle && (
+                <Dropdown.Item
+                  onClick={() => onThemeToggle(isDark ? 'light' : 'dark')}
+                  className='!px-3 !py-1.5 !text-sm !text-semi-color-text-0 hover:!bg-semi-color-fill-1 dark:!text-gray-200 dark:hover:!bg-blue-500 dark:hover:!text-white'
+                >
+                  <div className='flex items-center gap-2'>
+                    {isDark ? (
+                      <Sun size={14} className='text-gray-500 dark:text-gray-400' />
+                    ) : (
+                      <Moon size={14} className='text-gray-500 dark:text-gray-400' />
+                    )}
+                    <span>{isDark ? t('切换到浅色模式') : t('切换到深色模式')}</span>
+                  </div>
+                </Dropdown.Item>
+              )}
+              {isMobile && onLanguageChange && (
+                <Dropdown
+                  position='leftTop'
+                  trigger='click'
+                  render={
+                    <Dropdown.Menu className='!bg-semi-color-bg-overlay !border-semi-color-border !shadow-lg !rounded-lg dark:!bg-gray-700 dark:!border-gray-600'>
+                      {LANG_OPTIONS.map((lang) => (
+                        <Dropdown.Item
+                          key={lang.code}
+                          onClick={() => onLanguageChange(lang.code)}
+                          className={`!px-3 !py-1.5 !text-sm !text-semi-color-text-0 dark:!text-gray-200 ${currentLang === lang.code ? '!bg-semi-color-primary-light-default dark:!bg-blue-600 !font-semibold' : 'hover:!bg-semi-color-fill-1 dark:hover:!bg-gray-600'}`}
+                        >
+                          {lang.label}
+                        </Dropdown.Item>
+                      ))}
+                    </Dropdown.Menu>
+                  }
+                >
+                  <Dropdown.Item className='!px-3 !py-1.5 !text-sm !text-semi-color-text-0 hover:!bg-semi-color-fill-1 dark:!text-gray-200 dark:hover:!bg-blue-500 dark:hover:!text-white'>
+                    <div className='flex items-center gap-2'>
+                      <Languages size={14} className='text-gray-500 dark:text-gray-400' />
+                      <span>{t('切换语言')}</span>
+                    </div>
+                  </Dropdown.Item>
+                </Dropdown>
+              )}
               <Dropdown.Item
                 onClick={logout}
                 className='!px-3 !py-1.5 !text-sm !text-semi-color-text-0 hover:!bg-semi-color-fill-1 dark:!text-gray-200 dark:hover:!bg-red-500 dark:hover:!text-white'

@@ -65,7 +65,13 @@ const Navigation = ({
   };
 
   return (
-    <nav className='header-nav-container flex flex-1 items-center gap-1 lg:gap-2 mx-2 md:mx-4 overflow-x-auto whitespace-nowrap scrollbar-hide'>
+    <nav
+      className='header-nav-container flex flex-1 items-center gap-1 lg:gap-2 mx-2 md:mx-4 overflow-x-auto whitespace-nowrap scrollbar-hide'
+      style={isMobile ? {
+        maskImage: 'linear-gradient(to right, black calc(100% - 24px), transparent)',
+        WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 24px), transparent)',
+      } : undefined}
+    >
       <SkeletonWrapper
         loading={isLoading}
         type='navigation'
