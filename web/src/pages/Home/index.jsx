@@ -197,17 +197,31 @@ const Home = () => {
   const currentYear = new Date().getFullYear();
   const version = 'v1.0.0';
   const shellRef = useRef(null);
-  const [siteStats, setSiteStats] = useState({ total_users: 0, total_tokens: 0 });
+  const [siteStats, setSiteStats] = useState(() => {
+    try {
+      const cached = localStorage.getItem('site_stats_cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && typeof parsed === 'object') return parsed;
+      }
+    } catch {}
+    return { total_users: 0, total_tokens: 0 };
+  });
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const res = await API.get('/api/leaderboard/stats');
-        if (res.data.success) setSiteStats(res.data.data);
+        if (res.data?.success && res.data?.data) {
+          setSiteStats(res.data.data);
+          try {
+            localStorage.setItem('site_stats_cache', JSON.stringify(res.data.data));
+          } catch {}
+        }
       } catch {}
     };
     fetchStats();
-    const interval = setInterval(fetchStats, 30000);
+    const interval = setInterval(fetchStats, 60000);
     return () => clearInterval(interval);
   }, []);
 
