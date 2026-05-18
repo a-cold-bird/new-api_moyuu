@@ -176,16 +176,20 @@ type SiteStats struct {
 func GetSiteStats() (*SiteStats, error) {
 	var stats SiteStats
 
-	if err := DB.Table("users").Where("status = ?", 1).Count(&stats.TotalUsers).Error; err != nil {
+	// 统计所有注册账户（含被禁用），仅排除已软删除。
+	// 使用 Model(&User{}) 让 GORM 自动应用 deleted_at IS NULL 过滤。
+	if err := DB.Model(&User{}).Count(&stats.TotalUsers).Error; err != nil {
 		return nil, err
 	}
 
+	var totalTokens int64
 	if err := LOG_DB.Table("logs").
-		Select("COALESCE(SUM(prompt_tokens + completion_tokens), 0) as total_tokens").
+		Select("COALESCE(SUM(prompt_tokens + completion_tokens), 0)").
 		Where("type = ?", LogTypeConsume).
-		Scan(&stats).Error; err != nil {
+		Scan(&totalTokens).Error; err != nil {
 		return nil, err
 	}
+	stats.TotalTokens = totalTokens
 
 	return &stats, nil
 }

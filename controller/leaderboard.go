@@ -12,7 +12,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const leaderboardCacheTTL = 30 * time.Second
+const (
+	leaderboardCacheTTL = 30 * time.Second
+	siteStatsCacheTTL   = 5 * time.Minute
+)
 
 func getTimestampRange(period string) (int64, int64) {
 	now := time.Now().Unix()
@@ -28,7 +31,7 @@ func getTimestampRange(period string) (int64, int64) {
 	}
 }
 
-func cachedJSON(c *gin.Context, cacheKey string, fetch func() (any, error)) {
+func cachedJSON(c *gin.Context, cacheKey string, ttl time.Duration, fetch func() (any, error)) {
 	if common.RedisEnabled {
 		cached, err := common.RedisGet(cacheKey)
 		if err == nil && cached != "" {
@@ -46,7 +49,7 @@ func cachedJSON(c *gin.Context, cacheKey string, fetch func() (any, error)) {
 	body, _ := common.Marshal(gin.H{"success": true, "message": "", "data": data})
 
 	if common.RedisEnabled {
-		_ = common.RedisSet(cacheKey, string(body), leaderboardCacheTTL)
+		_ = common.RedisSet(cacheKey, string(body), ttl)
 	}
 
 	c.Data(http.StatusOK, "application/json", body)
@@ -61,10 +64,13 @@ func GetLeaderboard(c *gin.Context) {
 
 	period := c.DefaultQuery("period", "24h")
 	tab := c.DefaultQuery("tab", "users")
+	if tab != "users" && tab != "models" {
+		tab = "users"
+	}
 	cacheKey := fmt.Sprintf("leaderboard:%s:%s", tab, period)
 	startTs, endTs := getTimestampRange(period)
 
-	cachedJSON(c, cacheKey, func() (any, error) {
+	cachedJSON(c, cacheKey, leaderboardCacheTTL, func() (any, error) {
 		if tab == "models" {
 			return model.GetModelLeaderboard(startTs, endTs, 100)
 		}
@@ -96,7 +102,7 @@ func GetMyRank(c *gin.Context) {
 }
 
 func GetSiteStats(c *gin.Context) {
-	cachedJSON(c, "site:stats", func() (any, error) {
+	cachedJSON(c, "site:stats", siteStatsCacheTTL, func() (any, error) {
 		return model.GetSiteStats()
 	})
 }
