@@ -18,6 +18,29 @@ var (
 	maskIPPattern     = regexp.MustCompile(`\b(?:\d{1,3}\.){3}\d{1,3}\b`)
 	// maskApiKeyPattern matches patterns like 'api_key:xxx' or "api_key:xxx" to mask the API key value
 	maskApiKeyPattern = regexp.MustCompile(`(['"]?)api_key:([^\s'"]+)(['"]?)`)
+
+	// PII / 配额脱敏正则。
+	//
+	// TODO(error-scrubbing): 这是一套过渡性的正则补丁，作用是把上游错误里最常见的
+	//   敏感字段（UUID、配额数字、org/account ID、上游 request_id、Tier、货币金额、
+	//   Bearer token）粗粒度地替换成 ***，避免诸如 Anthropic Tier 4 配额（"500,000
+	//   input tokens per minute"）+ org UUID 一同泄露后被外部反推出账号商业规模。
+	//
+	//   这套正则覆盖有盲区——比如带 K/M 后缀的配额（"1.5M tokens/day"）、非英文语种的
+	//   错误文案、自定义内部资源命名等都不会命中。后续应迁移到一套更完善的过滤系统，
+	//   思路上至少包含：
+	//     1) 渠道级可配置的可见度模式（raw / scrubbed / categorized / minimal）
+	//     2) 基于状态码 + 关键字的错误分类重写
+	//     3) 可在管理后台动态调整的脱敏规则表
+	//   届时本文件下面这一组 piiXxxPattern 应当被移除，由专门的 service/error_scrub.go
+	//   接管，并配合 channel.OtherSettings.ErrorVisibility 做粒度控制。
+	piiUUIDPattern        = regexp.MustCompile(`\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b`)
+	piiQuotaNumberPattern = regexp.MustCompile(`\b\d{1,3}(?:,\d{3})+\s+(input|output|cache|prompt|completion|tokens?|requests?|messages?|prompts?)\b`)
+	piiOrgAcctPattern     = regexp.MustCompile(`\b(org|acct|user|proj|workspace|account)[-_:]\s*[A-Za-z0-9_\-]{6,}\b`)
+	piiRequestIdPattern   = regexp.MustCompile(`request[\s_\-]?id[:\s]+[A-Za-z0-9_\-]{12,}`)
+	piiTierPattern        = regexp.MustCompile(`\b[Tt]ier[-_\s]?\d+\b`)
+	piiCurrencyPattern    = regexp.MustCompile(`\$\d+(?:\.\d+)?(?:\s?(?:USD|usd))?`)
+	piiBearerPattern      = regexp.MustCompile(`\bBearer\s+[A-Za-z0-9\-_.]{20,}`)
 )
 
 func GetStringIfEmpty(str string, defaultValue string) string {
@@ -249,6 +272,18 @@ func MaskSensitiveInfo(str string) string {
 
 	// Mask API keys (e.g., "api_key:AIzaSyAAAaUooTUni8AdaOkSRMda30n_Q4vrV70" -> "api_key:***")
 	str = maskApiKeyPattern.ReplaceAllString(str, "${1}api_key:***${3}")
+
+	// === PII / 配额脱敏（临时补丁，详见上方 piiXxxPattern 处的 TODO）===
+	// 防止上游错误里的 UUID / 配额数字 / org ID / request_id 等敏感字段直接透传给客户端。
+	// 例：Anthropic 的 "rate limit of 500,000 input tokens per minute (org: <uuid>)" 会暴露
+	// 账号 Tier 等级和商业规模，必须在客户端看到之前脱敏。
+	str = piiUUIDPattern.ReplaceAllString(str, "***")
+	str = piiQuotaNumberPattern.ReplaceAllString(str, "*** $1")
+	str = piiOrgAcctPattern.ReplaceAllString(str, "$1: ***")
+	str = piiRequestIdPattern.ReplaceAllString(str, "request id: ***")
+	str = piiTierPattern.ReplaceAllString(str, "Tier ***")
+	str = piiCurrencyPattern.ReplaceAllString(str, "$***")
+	str = piiBearerPattern.ReplaceAllString(str, "Bearer ***")
 
 	return str
 }
