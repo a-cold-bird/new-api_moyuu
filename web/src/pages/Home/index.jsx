@@ -549,8 +549,12 @@ const Home = () => {
                 <div className="flex flex-col gap-6 border-t border-semi-color-border pt-6 md:flex-row md:items-center md:justify-between">
                   <div className="flex flex-wrap gap-x-6 gap-y-3 text-[13px] font-medium text-semi-color-text-2">
                     <a href="https://docs.moyuu.cc/" target="_blank" rel="noreferrer" className="transition-colors hover:text-semi-color-text-0">关于</a>
-                    <a href="https://docs.moyuu.cc/" target="_blank" rel="noreferrer" className="transition-colors hover:text-semi-color-text-0">服务条款</a>
-                    <a href="https://docs.moyuu.cc/" target="_blank" rel="noreferrer" className="transition-colors hover:text-semi-color-text-0">使用政策</a>
+                    {statusState?.status?.user_agreement_enabled === true && (
+                      <Link to="/user-agreement" className="transition-colors hover:text-semi-color-text-0">用户协议</Link>
+                    )}
+                    {statusState?.status?.privacy_policy_enabled === true && (
+                      <Link to="/privacy-policy" className="transition-colors hover:text-semi-color-text-0">隐私政策</Link>
+                    )}
                   </div>
                   <div className="flex flex-col gap-2 text-[13px] text-semi-color-text-2 md:items-end">
                     <div>© {currentYear} Moeyuu. 版权所有</div>
