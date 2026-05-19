@@ -555,6 +555,44 @@ const RegisterForm = () => {
                 </Button>
               </div>
 
+              {(hasUserAgreement || hasPrivacyPolicy) && (
+                <div className='mt-6'>
+                  <Checkbox
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  >
+                    <Text size='small' className='text-gray-600'>
+                      {t('我已阅读并同意')}
+                      {hasUserAgreement && (
+                        <>
+                          <a
+                            href='/user-agreement'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            className='auth-link mx-1'
+                          >
+                            {t('用户协议')}
+                          </a>
+                        </>
+                      )}
+                      {hasUserAgreement && hasPrivacyPolicy && t('和')}
+                      {hasPrivacyPolicy && (
+                        <>
+                          <a
+                            href='/privacy-policy'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            className='auth-link mx-1'
+                          >
+                            {t('隐私政策')}
+                          </a>
+                        </>
+                      )}
+                    </Text>
+                  </Checkbox>
+                </div>
+              )}
+
               <div className='mt-6 text-center text-sm'>
                 <Text>
                   {t('已有账户？')}{' '}
