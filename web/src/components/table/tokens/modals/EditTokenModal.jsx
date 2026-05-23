@@ -28,6 +28,7 @@ import {
   getModelCategories,
   selectFilter,
 } from '../../../../helpers';
+import { buildAutoGroupChain } from '../../../../helpers/autoGroup';
 import {
   quotaToDisplayAmount,
   displayAmountToQuota,
@@ -67,6 +68,7 @@ const EditTokenModal = (props) => {
   const formApiRef = useRef(null);
   const [models, setModels] = useState([]);
   const [groups, setGroups] = useState([]);
+  const [autoGroupChain, setAutoGroupChain] = useState('');
   const [showQuotaInput, setShowQuotaInput] = useState(false);
   const isEdit = props.editingToken.id !== undefined;
 
@@ -156,6 +158,18 @@ const EditTokenModal = (props) => {
     }
   };
 
+  const loadAutoGroupInfo = async () => {
+    try {
+      const res = await API.get('/api/pricing');
+      const { success, group_ratio, auto_groups } = res.data;
+      if (success) {
+        setAutoGroupChain(buildAutoGroupChain(auto_groups, group_ratio));
+      }
+    } catch {
+      // Keep the form usable if pricing metadata is temporarily unavailable.
+    }
+  };
+
   const loadToken = async () => {
     setLoading(true);
     let res = await API.get(`/api/token/${props.editingToken.id}`);
@@ -189,6 +203,7 @@ const EditTokenModal = (props) => {
     }
     loadModels();
     loadGroups();
+    loadAutoGroupInfo();
   }, [props.editingToken.id]);
 
   useEffect(() => {
@@ -416,6 +431,19 @@ const EditTokenModal = (props) => {
                       display: values.group === 'auto' ? 'block' : 'none',
                     }}
                   >
+                    {autoGroupChain && (
+                      <div className='mb-3 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs leading-5 text-blue-700'>
+                        <div>
+                          <Text strong>{t('auto分组链路')}</Text>
+                          <span className='ml-1'>{autoGroupChain}</span>
+                        </div>
+                        <div className='text-blue-600'>
+                          {t(
+                            'auto本身不单独计价，实际扣费按最终选中的真实分组计算。',
+                          )}
+                        </div>
+                      </div>
+                    )}
                     <Form.Switch
                       field='cross_group_retry'
                       label={t('跨分组重试')}

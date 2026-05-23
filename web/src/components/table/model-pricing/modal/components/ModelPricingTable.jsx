@@ -21,6 +21,7 @@ import React from 'react';
 import { Card, Avatar, Typography, Table, Tag } from '@douyinfe/semi-ui';
 import { IconCoinMoneyStroked } from '@douyinfe/semi-icons';
 import { calculateModelPrice, getModelPriceItems } from '../../../../../helpers';
+import { buildAutoGroupChain } from '../../../../../helpers/autoGroup';
 
 const { Text } = Typography;
 
@@ -40,6 +41,7 @@ const ModelPricingTable = ({
     ? modelData.enable_groups
     : [];
   const autoChain = autoGroups.filter((g) => modelEnableGroups.includes(g));
+  const autoChainText = buildAutoGroupChain(autoChain, groupRatio);
   const renderGroupPriceTable = () => {
     // 仅展示模型可用的分组：模型 enable_groups 与用户可用分组的交集
 
@@ -165,19 +167,11 @@ const ModelPricingTable = ({
           </div>
         </div>
       </div>
-      {autoChain.length > 0 && (
+      {autoChainText && (
         <div className='flex flex-wrap items-center gap-1 mb-4'>
           <span className='text-sm text-gray-600'>{t('auto分组调用链路')}</span>
           <span className='text-sm'>→</span>
-          {autoChain.map((g, idx) => (
-            <React.Fragment key={g}>
-              <Tag color='white' size='small' shape='circle'>
-                {g}
-                {t('分组')}
-              </Tag>
-              {idx < autoChain.length - 1 && <span className='text-sm'>→</span>}
-            </React.Fragment>
-          ))}
+          <span className='text-sm'>{autoChainText}</span>
         </div>
       )}
       {renderGroupPriceTable()}
