@@ -54,7 +54,7 @@ export const CodeTerminal = ({ serverAddress }) => {
           <span style={{ color: "var(--semi-color-success)" }}>&quot;sk-xxxxxx&quot;</span>
         </div>
 
-        <div className='mb-4 text-[13px] sm:text-[14px]' style={{ color: "var(--semi-color-text-2)" }}>// 模型推荐 gpt-5.4</div>
+        <div className='mb-4 text-[13px] sm:text-[14px]' style={{ color: "var(--semi-color-text-2)" }}>// 模型推荐 gpt-5.5</div>
         <div className='flex items-center text-[14px] sm:text-[15px] leading-relaxed'>
           <span className='font-bold mr-3' style={{ color: "var(--semi-color-text-0)" }}>$</span>
           <span className='font-semibold' style={{ color: "var(--semi-color-link)" }}>codex</span>

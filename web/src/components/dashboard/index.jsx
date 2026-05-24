@@ -23,6 +23,7 @@ import { UserContext } from '../../context/User';
 import { StatusContext } from '../../context/Status';
 
 import DashboardHeader from './DashboardHeader';
+import DashboardGuideBanner from './DashboardGuideBanner';
 import StatsCards from './StatsCards';
 import ChartsPanel from './ChartsPanel';
 import ApiInfoPanel from './ApiInfoPanel';
@@ -152,6 +153,8 @@ const Dashboard = () => {
 
   return (
     <div className='h-full'>
+      <DashboardGuideBanner t={dashboardData.t} />
+
       <DashboardHeader
         getGreeting={dashboardData.getGreeting}
         greetingVisible={dashboardData.greetingVisible}
