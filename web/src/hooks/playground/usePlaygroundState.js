@@ -73,7 +73,7 @@ export const usePlaygroundState = () => {
     savedConfig.showDebugPanel || DEFAULT_CONFIG.showDebugPanel,
   );
   const [customRequestMode, setCustomRequestMode] = useState(
-    savedConfig.customRequestMode || DEFAULT_CONFIG.customRequestMode,
+    DEFAULT_CONFIG.customRequestMode,
   );
   const [customRequestBody, setCustomRequestBody] = useState(
     savedConfig.customRequestBody || DEFAULT_CONFIG.customRequestBody,

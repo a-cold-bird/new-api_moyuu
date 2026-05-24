@@ -63,7 +63,9 @@ const PageLayout = () => {
   ];
 
   const shouldHideFooter =
-    cardProPages.includes(location.pathname) || location.pathname === '/';
+    cardProPages.includes(location.pathname) ||
+    location.pathname === '/' ||
+    location.pathname === '/console/playground';
 
   const shouldInnerPadding =
     location.pathname.includes('/console') &&
@@ -77,6 +79,7 @@ const PageLayout = () => {
 
   const isConsoleRoute = location.pathname.startsWith('/console');
   const isHomeRoute = location.pathname === '/';
+  const isPlaygroundRoute = location.pathname === '/console/playground';
   const showSider = isConsoleRoute && (!isMobile || drawerOpen);
 
   useEffect(() => {
@@ -211,14 +214,18 @@ const PageLayout = () => {
                 ? 'var(--sidebar-current-width)'
                 : '0',
             flex: '1 1 auto',
-            overflow: isMobile ? 'visible' : isHomeRoute ? 'hidden' : 'auto',
+            overflow: isMobile
+              ? 'visible'
+              : isHomeRoute || isPlaygroundRoute
+                ? 'hidden'
+                : 'auto',
             display: 'flex',
             flexDirection: 'column',
           }}
         >
           <Content
             style={{
-              flex: '1 0 auto',
+              flex: isPlaygroundRoute ? '1 1 auto' : '1 0 auto',
               overflowY: isMobile ? 'visible' : isAuthRoute ? 'auto' : 'hidden',
               WebkitOverflowScrolling: 'touch',
               padding: shouldInnerPadding ? (isMobile ? '5px' : '24px') : '0',

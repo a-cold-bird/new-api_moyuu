@@ -18,17 +18,47 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React, { useRef, useEffect, useCallback } from 'react';
-import { Toast } from '@douyinfe/semi-ui';
+import { Button, Select, Toast } from '@douyinfe/semi-ui';
+import {
+  BarChart3,
+  Box,
+  Code2,
+  GraduationCap,
+  Paperclip,
+  Search,
+  Sparkles,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePlayground } from '../../contexts/PlaygroundContext';
+import { renderGroupOption, selectFilter } from '../../helpers';
 
 const CustomInputRender = (props) => {
   const { t } = useTranslation();
   const { onPasteImage, imageEnabled } = usePlayground();
-  const { detailProps } = props;
-  const { clearContextNode, uploadNode, inputNode, sendNode, onClick } =
-    detailProps;
+  const {
+    customRequestMode,
+    groups = [],
+    inputs = {},
+    models = [],
+    onInputChange,
+    onPresetClick,
+    promptPresets = [],
+    detailProps,
+  } = props;
+  const { clearContextNode, inputNode, sendNode, onClick } = detailProps;
   const containerRef = useRef(null);
+
+  const presetIcons = [BarChart3, Box, Sparkles, Code2, GraduationCap];
+
+  const handleUnavailableAction = useCallback(
+    (action) => {
+      Toast.info({
+        content: `${action}${t('功能正在开发中')}`,
+        duration: 2,
+      });
+    },
+    [t],
+  );
 
   const handlePaste = useCallback(
     async (e) => {
@@ -105,48 +135,128 @@ const CustomInputRender = (props) => {
   // 清空按钮
   const styledClearNode = clearContextNode
     ? React.cloneElement(clearContextNode, {
-        className: `!rounded-full !bg-gray-100 hover:!bg-red-500 hover:!text-white flex-shrink-0 transition-all ${clearContextNode.props.className || ''}`,
+        className: `!rounded-full flex-shrink-0 transition-all ${clearContextNode.props.className || ''}`,
         style: {
           ...clearContextNode.props.style,
-          width: '32px',
-          height: '32px',
-          minWidth: '32px',
+          width: '34px',
+          height: '34px',
+          minWidth: '34px',
           padding: 0,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          color: 'var(--semi-color-text-2)',
+          background: 'var(--semi-color-fill-0)',
         },
       })
     : null;
 
   // 发送按钮
-  const styledSendNode = React.cloneElement(sendNode, {
-    className: `!rounded-full !bg-purple-500 hover:!bg-purple-600 flex-shrink-0 transition-all ${sendNode.props.className || ''}`,
-    style: {
-      ...sendNode.props.style,
-      width: '32px',
-      height: '32px',
-      minWidth: '32px',
-      padding: 0,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-  });
+  const styledSendNode = sendNode
+    ? React.cloneElement(sendNode, {
+        className: `!rounded-full flex-shrink-0 transition-all ${sendNode.props.className || ''}`,
+        style: {
+          ...sendNode.props.style,
+          width: '38px',
+          height: '38px',
+          minWidth: '38px',
+          padding: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow:
+            'var(--semi-shadow-elevated, 0 12px 32px rgba(0, 0, 0, 0.08))',
+        },
+      })
+    : null;
 
   return (
-    <div className='p-2 sm:p-4' ref={containerRef}>
+    <div className='px-3 pb-4 pt-2 sm:px-4 sm:pb-6' ref={containerRef}>
       <div
-        className='flex items-center gap-2 sm:gap-3 p-2 bg-gray-50 rounded-xl sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow'
-        style={{ border: '1px solid var(--semi-color-border)' }}
+        className='mx-auto flex w-full max-w-4xl flex-col gap-3 rounded-2xl p-3 transition-shadow'
+        style={{
+          border: '1px solid var(--semi-color-border)',
+          background: 'var(--semi-color-bg-0)',
+          boxShadow:
+            'var(--semi-shadow-elevated, 0 10px 26px rgba(0, 0, 0, 0.08))',
+        }}
         onClick={onClick}
         title={t('支持 Ctrl+V 粘贴图片')}
       >
-        {/* 清空对话按钮 - 左边 */}
-        {styledClearNode}
-        <div className='flex-1'>{inputNode}</div>
-        {/* 发送按钮 - 右边 */}
-        {styledSendNode}
+        <div className='min-h-[72px] min-w-0'>{inputNode}</div>
+        <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+          <div className='flex items-center gap-2'>
+            {styledClearNode}
+            <Button
+              icon={<Paperclip size={14} />}
+              size='small'
+              theme='outline'
+              type='tertiary'
+              className='!rounded-lg'
+              onClick={() => handleUnavailableAction(t('附加'))}
+            >
+              {t('附加')}
+            </Button>
+            <Button
+              icon={<Search size={14} />}
+              size='small'
+              theme='outline'
+              type='tertiary'
+              className='!rounded-lg'
+              onClick={() => handleUnavailableAction(t('搜索'))}
+            >
+              {t('搜索')}
+            </Button>
+          </div>
+          <div className='flex min-w-0 flex-wrap items-center gap-2 sm:flex-nowrap'>
+            <Select
+              placeholder={t('分组')}
+              value={inputs.group}
+              optionList={groups}
+              renderOptionItem={renderGroupOption}
+              filter={selectFilter}
+              autoClearSearchValue={false}
+              onChange={(value) => onInputChange?.('group', value)}
+              disabled={customRequestMode}
+              size='small'
+              className='!rounded-lg'
+              style={{ minWidth: 120, maxWidth: 170 }}
+              dropdownStyle={{ width: 240 }}
+            />
+            <Select
+              placeholder={t('模型')}
+              value={inputs.model}
+              optionList={models}
+              filter={selectFilter}
+              autoClearSearchValue={false}
+              onChange={(value) => onInputChange?.('model', value)}
+              disabled={customRequestMode}
+              size='small'
+              className='!rounded-lg'
+              style={{ minWidth: 150, maxWidth: 230 }}
+              dropdownStyle={{ width: 280 }}
+            />
+            {styledSendNode}
+          </div>
+        </div>
+      </div>
+      <div className='mx-auto mt-3 flex w-full max-w-4xl flex-wrap items-center gap-2'>
+        {promptPresets.map((preset, index) => {
+          const Icon = presetIcons[index] || Sparkles;
+          return (
+            <Button
+              key={preset.label}
+              icon={<Icon size={14} />}
+              size='small'
+              theme='outline'
+              type='tertiary'
+              className='!rounded-full'
+              onClick={() => onPresetClick?.(preset.prompt)}
+            >
+              {preset.label}
+            </Button>
+          );
+        })}
       </div>
     </div>
   );

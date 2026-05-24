@@ -52,13 +52,11 @@ import {
 
 // Components
 import {
-  OptimizedSettingsPanel,
   OptimizedDebugPanel,
   OptimizedMessageContent,
   OptimizedMessageActions,
 } from '../../components/playground/OptimizedComponents';
 import ChatArea from '../../components/playground/ChatArea';
-import FloatingButtons from '../../components/playground/FloatingButtons';
 import { PlaygroundProvider } from '../../contexts/PlaygroundContext';
 
 // 生成头像
@@ -91,10 +89,8 @@ const Playground = () => {
     showDebugPanel,
     customRequestMode,
     customRequestBody,
-    showSettings,
     models,
     groups,
-    status,
     message,
     debugData,
     activeDebugTab,
@@ -102,15 +98,10 @@ const Playground = () => {
     sseSourceRef,
     chatRef,
     handleInputChange,
-    handleParameterToggle,
     debouncedSaveConfig,
     saveMessagesImmediately,
-    handleConfigImport,
-    handleConfigReset,
-    setShowSettings,
     setModels,
     setGroups,
-    setStatus,
     setMessage,
     setDebugData,
     setActiveDebugTab,
@@ -131,6 +122,14 @@ const Playground = () => {
 
   // 数据加载
   useDataLoader(userState, inputs, handleInputChange, setModels, setGroups);
+
+  // The modern playground hides advanced request-body controls; ensure normal
+  // model/group-driven requests are used even if an old local config enabled it.
+  useEffect(() => {
+    if (customRequestMode) {
+      setCustomRequestMode(false);
+    }
+  }, [customRequestMode, setCustomRequestMode]);
 
   // 消息编辑
   const {
@@ -459,54 +458,26 @@ const Playground = () => {
 
   return (
     <PlaygroundProvider value={playgroundContextValue}>
-      <div className='h-full'>
-        <Layout className='h-full bg-transparent flex flex-col md:flex-row'>
-          {(showSettings || !isMobile) && (
-            <Layout.Sider
-              className={`
-              bg-transparent border-r-0 flex-shrink-0 overflow-auto mt-[60px]
-              ${
-                isMobile
-                  ? 'fixed top-0 left-0 right-0 bottom-0 z-[1000] w-full h-auto bg-white shadow-lg'
-                  : 'relative z-[1] w-80 h-[calc(100vh-66px)]'
-              }
-            `}
-              width={isMobile ? '100%' : 320}
-            >
-              <OptimizedSettingsPanel
-                inputs={inputs}
-                parameterEnabled={parameterEnabled}
-                models={models}
-                groups={groups}
-                styleState={styleState}
-                showSettings={showSettings}
-                showDebugPanel={showDebugPanel}
-                customRequestMode={customRequestMode}
-                customRequestBody={customRequestBody}
-                onInputChange={handleInputChange}
-                onParameterToggle={handleParameterToggle}
-                onCloseSettings={() => setShowSettings(false)}
-                onConfigImport={handleConfigImport}
-                onConfigReset={handleConfigReset}
-                onCustomRequestModeChange={setCustomRequestMode}
-                onCustomRequestBodyChange={setCustomRequestBody}
-                previewPayload={previewPayload}
-                messages={message}
-              />
-            </Layout.Sider>
-          )}
-
-          <Layout.Content className='relative flex-1 overflow-hidden'>
-            <div className='overflow-hidden flex flex-col lg:flex-row h-[calc(100vh-66px)] mt-[60px]'>
-              <div className='flex-1 flex flex-col'>
+      <div
+        className='h-[100dvh] overflow-hidden pt-[60px]'
+        style={{ background: 'var(--semi-color-bg-0)' }}
+      >
+        <Layout className='h-full bg-transparent'>
+          <Layout.Content className='relative h-full flex-1 overflow-hidden'>
+            <div className='flex h-[calc(100dvh-60px)] overflow-hidden p-2 sm:p-3 lg:flex-row'>
+              <div className='flex min-w-0 flex-1 flex-col overflow-hidden'>
                 <ChatArea
                   chatRef={chatRef}
                   message={message}
                   inputs={inputs}
+                  models={models}
+                  groups={groups}
                   styleState={styleState}
                   showDebugPanel={showDebugPanel}
+                  customRequestMode={customRequestMode}
                   roleInfo={roleInfo}
                   onMessageSend={onMessageSend}
+                  onInputChange={handleInputChange}
                   onMessageCopy={messageActions.handleMessageCopy}
                   onMessageReset={messageActions.handleMessageReset}
                   onMessageDelete={messageActions.handleMessageDelete}
@@ -520,7 +491,7 @@ const Playground = () => {
 
               {/* 调试面板 - 桌面端 */}
               {showDebugPanel && !isMobile && (
-                <div className='w-96 flex-shrink-0 h-full'>
+                <div className='ml-3 h-full w-96 flex-shrink-0 overflow-hidden rounded-3xl'>
                   <OptimizedDebugPanel
                     debugData={debugData}
                     activeDebugTab={activeDebugTab}
@@ -534,7 +505,10 @@ const Playground = () => {
 
             {/* 调试面板 - 移动端覆盖层 */}
             {showDebugPanel && isMobile && (
-              <div className='fixed top-0 left-0 right-0 bottom-0 z-[1000] bg-white overflow-auto shadow-lg'>
+              <div
+                className='fixed inset-0 z-[1000] overflow-auto shadow-lg'
+                style={{ background: 'var(--semi-color-bg-0)' }}
+              >
                 <OptimizedDebugPanel
                   debugData={debugData}
                   activeDebugTab={activeDebugTab}
@@ -546,15 +520,6 @@ const Playground = () => {
                 />
               </div>
             )}
-
-            {/* 浮动按钮 */}
-            <FloatingButtons
-              styleState={styleState}
-              showSettings={showSettings}
-              showDebugPanel={showDebugPanel}
-              onToggleSettings={() => setShowSettings(!showSettings)}
-              onToggleDebugPanel={() => setShowDebugPanel(!showDebugPanel)}
-            />
           </Layout.Content>
         </Layout>
       </div>
