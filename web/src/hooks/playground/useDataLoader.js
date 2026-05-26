@@ -17,9 +17,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { API, processModelsData, processGroupsData } from '../../helpers';
+import { API, processGroupsData } from '../../helpers';
+import { processModelsData } from '../../helpers/playgroundModels';
 import { API_ENDPOINTS } from '../../constants/playground.constants';
 
 export const useDataLoader = (
@@ -30,16 +31,38 @@ export const useDataLoader = (
   setGroups,
 ) => {
   const { t } = useTranslation();
+  const latestLoadModelsRequest = useRef(0);
 
   const loadModels = useCallback(async () => {
+    const requestId = latestLoadModelsRequest.current + 1;
+    latestLoadModelsRequest.current = requestId;
+
     try {
-      const res = await API.get(API_ENDPOINTS.USER_MODELS);
-      const { success, message, data } = res.data;
+      const [modelsResult, pricingResult] = await Promise.allSettled([
+        API.get(API_ENDPOINTS.USER_MODELS),
+        API.get(API_ENDPOINTS.PRICING),
+      ]);
+
+      if (requestId !== latestLoadModelsRequest.current) {
+        return;
+      }
+
+      if (modelsResult.status !== 'fulfilled') {
+        throw modelsResult.reason;
+      }
+
+      const modelsRes = modelsResult.value;
+      const pricingRes =
+        pricingResult.status === 'fulfilled' ? pricingResult.value : null;
+      const { success, message, data } = modelsRes.data;
 
       if (success) {
         const { modelOptions, selectedModel } = processModelsData(
           data,
           inputs.model,
+          inputs.group,
+          pricingRes?.data?.success ? pricingRes.data.data : [],
+          pricingRes?.data?.success ? pricingRes.data.auto_groups : [],
         );
         setModels(modelOptions);
 
@@ -50,9 +73,13 @@ export const useDataLoader = (
         showError(t(message));
       }
     } catch (error) {
+      if (requestId !== latestLoadModelsRequest.current) {
+        return;
+      }
+
       showError(t('加载模型失败'));
     }
-  }, [inputs.model, handleInputChange, setModels, t]);
+  }, [inputs.group, inputs.model, handleInputChange, setModels, t]);
 
   const loadGroups = useCallback(async () => {
     try {

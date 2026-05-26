@@ -25,6 +25,7 @@ import {
 } from './utils';
 import axios from 'axios';
 import { MESSAGE_ROLES } from '../constants/playground.constants';
+export { processModelsData } from './playgroundModels';
 
 export let API = axios.create({
   baseURL: import.meta.env.VITE_REACT_APP_SERVER_URL
@@ -189,24 +190,6 @@ export const handleApiError = (error, response = null) => {
   }
 
   return errorInfo;
-};
-
-// 处理模型数据
-export const processModelsData = (data, currentModel) => {
-  const modelOptions = data.map((model) => ({
-    label: model,
-    value: model,
-  }));
-
-  const hasCurrentModel = modelOptions.some(
-    (option) => option.value === currentModel,
-  );
-  const selectedModel =
-    hasCurrentModel && modelOptions.length > 0
-      ? currentModel
-      : modelOptions[0]?.value;
-
-  return { modelOptions, selectedModel };
 };
 
 // 处理分组数据
