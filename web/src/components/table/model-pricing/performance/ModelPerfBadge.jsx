@@ -54,7 +54,7 @@ const ModelPerfBadge = ({ perf, seriesGroups = [], t, compact = false }) => {
   return (
     <Tooltip content={content} position='top'>
       <div
-        className={`inline-grid items-start gap-x-2 text-right tabular-nums ${compact ? 'grid-cols-[34px_42px_40px]' : 'grid-cols-[42px_52px_74px]'}`}
+        className={`inline-grid items-start gap-x-2 text-right tabular-nums ${compact ? 'grid-cols-[34px_42px_60px]' : 'grid-cols-[42px_52px_92px]'}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div>

@@ -57,8 +57,8 @@ function formatTime(ts) {
 }
 
 const sizeConfig = {
-  sm: { container: 'h-4', width: 'w-[2px]', gap: 'gap-px', text: 'text-xs' },
-  md: { container: 'h-6', width: 'w-[3px]', gap: 'gap-px', text: 'text-sm' },
+  sm: { container: 'h-4', width: 'w-[3px]', gap: 'gap-[2px]', text: 'text-xs' },
+  md: { container: 'h-6', width: 'w-[3px]', gap: 'gap-[2px]', text: 'text-sm' },
 };
 
 export const toUptimeSeries = getUptimeSeriesFromGroups;
