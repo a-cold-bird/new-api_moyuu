@@ -24,6 +24,7 @@ import { AuthRedirect, PrivateRoute, AdminRoute } from './helpers';
 import NotFound from './pages/NotFound';
 import Forbidden from './pages/Forbidden';
 import { StatusContext } from './context/Status';
+import { getHeaderNavModuleAccess } from './helpers/headerNav';
 
 import SetupCheck from './components/layout/SetupCheck';
 
@@ -66,27 +67,10 @@ function App() {
   const location = useLocation();
   const [statusState] = useContext(StatusContext);
 
-  // 获取模型广场权限配置
-  const pricingRequireAuth = useMemo(() => {
-    const headerNavModulesConfig = statusState?.status?.HeaderNavModules;
-    if (headerNavModulesConfig) {
-      try {
-        const modules = JSON.parse(headerNavModulesConfig);
-
-        // 处理向后兼容性：如果pricing是boolean，默认不需要登录
-        if (typeof modules.pricing === 'boolean') {
-          return false; // 默认不需要登录鉴权
-        }
-
-        // 如果是对象格式，使用requireAuth配置
-        return modules.pricing?.requireAuth === true;
-      } catch (error) {
-        console.error('解析顶栏模块配置失败:', error);
-        return false; // 默认不需要登录
-      }
-    }
-    return false; // 默认不需要登录
-  }, [statusState?.status?.HeaderNavModules]);
+  const pricingAccess = useMemo(
+    () => getHeaderNavModuleAccess(statusState?.status?.HeaderNavModules, 'pricing'),
+    [statusState?.status?.HeaderNavModules],
+  );
 
   return (
     <SetupCheck>
@@ -335,7 +319,11 @@ function App() {
         <Route
           path='/pricing'
           element={
-            pricingRequireAuth ? (
+            statusState.status === undefined && !statusState.statusLoaded ? (
+              <Loading />
+            ) : !pricingAccess.enabled ? (
+              <Forbidden />
+            ) : pricingAccess.requireAuth ? (
               <PrivateRoute>
                 <Suspense
                   fallback={<Loading></Loading>}

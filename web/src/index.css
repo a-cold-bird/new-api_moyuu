@@ -623,8 +623,76 @@ html.dark .sbg-variant-green {
   background: transparent;
 }
 
+.model-detail-sidesheet .semi-sidesheet-body {
+  background: rgb(48, 50, 56);
+  overflow: hidden !important;
+  scrollbar-width: none;
+}
+
+.model-detail-sidesheet .semi-sidesheet-body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.model-detail-scroll {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.model-detail-scroll::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.model-detail-sidesheet .semi-card,
+.model-detail-sidesheet .semi-table-wrapper,
+.model-detail-sidesheet .semi-table,
+.model-detail-sidesheet .semi-table-container {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+}
+
+.model-detail-sidesheet .semi-card {
+  background: rgba(31, 32, 37, 0.74) !important;
+}
+
+.model-detail-sidesheet [class*='border-gray-'],
+.model-detail-sidesheet [class*='border-white'],
+.model-detail-sidesheet [class*='border-orange'],
+.model-detail-sidesheet [class*='border-purple'],
+.model-detail-sidesheet [class*='border-blue'] {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.model-detail-sidesheet [class*='bg-white'],
+.model-detail-sidesheet [class*='bg-gray-50'],
+.model-detail-sidesheet [class*='bg-gray-100'] {
+  background-color: rgba(255, 255, 255, 0.035) !important;
+}
+
+.model-detail-sidesheet [class*='bg-orange-'],
+.model-detail-sidesheet [class*='bg-purple-'],
+.model-detail-sidesheet [class*='bg-blue-'] {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.model-detail-sidesheet .semi-avatar,
+.model-detail-sidesheet .semi-avatar-extra-small,
+.model-detail-sidesheet .semi-avatar-small,
+.model-detail-sidesheet .semi-avatar-medium,
+.model-detail-sidesheet .semi-avatar-large {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
 /* 隐藏内容区域滚动条 */
 .pricing-scroll-hide,
+.pricing-content-mobile,
+.pricing-view-container,
+.pricing-view-container-mobile,
 .model-test-scroll,
 .card-content-scroll,
 .model-settings-scroll,
@@ -636,7 +704,18 @@ html.dark .sbg-variant-green {
   scrollbar-width: none;
 }
 
+.pricing-scroll-hide {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .pricing-scroll-hide::-webkit-scrollbar,
+.pricing-content-mobile::-webkit-scrollbar,
+.pricing-view-container::-webkit-scrollbar,
+.pricing-view-container-mobile::-webkit-scrollbar,
 .model-test-scroll::-webkit-scrollbar,
 .card-content-scroll::-webkit-scrollbar,
 .model-settings-scroll::-webkit-scrollbar,
@@ -1319,18 +1398,79 @@ html.dark .with-pastel-balls::before {
   overflow: auto;
 }
 
-.pricing-search-header {
+.pricing-intro-header {
   padding: 0.5rem;
   background-color: var(--semi-color-bg-0);
   flex-shrink: 0;
+}
+
+.pricing-search-header {
+  padding: 0.5rem;
+  background-color: var(--semi-color-bg-0);
   position: sticky;
   top: 0;
-  z-index: 5;
+  z-index: 10;
+  border-bottom: 1px solid color-mix(in srgb, var(--semi-color-border) 55%, transparent);
+  box-shadow: 0 10px 20px -18px rgba(0, 0, 0, 0.55);
+}
+
+.pricing-control-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  border: 0;
+  background: color-mix(in srgb, var(--semi-color-fill-0) 86%, transparent);
+  padding: 0.25rem 0.5rem;
+}
+
+.pricing-control-chip-label {
+  color: var(--semi-color-text-2);
+  font-size: 0.875rem;
+}
+
+.pricing-search-header .semi-input-wrapper,
+.pricing-search-header .semi-select-selection {
+  border-color: color-mix(in srgb, var(--semi-color-border) 42%, transparent) !important;
+  background: color-mix(in srgb, var(--semi-color-fill-0) 82%, transparent) !important;
 }
 
 .pricing-view-container {
   flex: 1;
+  min-height: 0;
   overflow: auto;
+}
+
+.uptime-bar-track {
+  background: var(--semi-color-fill-1);
+}
+
+.uptime-bar-success {
+  background: #10b981;
+}
+
+.uptime-bar-successLight {
+  background: #34d399;
+}
+
+.uptime-bar-warning {
+  background: #f59e0b;
+}
+
+.uptime-bar-danger {
+  background: #f43f5e;
+}
+
+.uptime-text-success {
+  color: #10b981;
+}
+
+.uptime-text-warning {
+  color: #f59e0b;
+}
+
+.uptime-text-danger {
+  color: #f43f5e;
 }
 
 .pricing-view-container-mobile {

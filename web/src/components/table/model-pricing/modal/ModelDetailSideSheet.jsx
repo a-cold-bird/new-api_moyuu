@@ -18,14 +18,16 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { SideSheet, Typography, Button } from '@douyinfe/semi-ui';
+import { SideSheet, Typography, Button, Tabs } from '@douyinfe/semi-ui';
 import { IconClose } from '@douyinfe/semi-icons';
+import { Code2, HeartPulse, Info } from 'lucide-react';
 
 import { useIsMobile } from '../../../../hooks/common/useIsMobile';
 import ModelHeader from './components/ModelHeader';
-import ModelBasicInfo from './components/ModelBasicInfo';
-import ModelEndpoints from './components/ModelEndpoints';
 import ModelPricingTable from './components/ModelPricingTable';
+import ModelOverviewCards from './components/ModelOverviewCards';
+import ModelEndpoints from './components/ModelEndpoints';
+import ModelPerformancePanel from '../performance/ModelPerformancePanel';
 
 const { Text } = Typography;
 
@@ -50,6 +52,7 @@ const ModelDetailSideSheet = ({
   return (
     <SideSheet
       placement='right'
+      className='model-detail-sidesheet'
       title={
         <ModelHeader modelData={modelData} vendorsMap={vendorsMap} t={t} />
       }
@@ -57,10 +60,12 @@ const ModelDetailSideSheet = ({
         padding: '0',
         display: 'flex',
         flexDirection: 'column',
-        borderBottom: '1px solid var(--semi-color-border)',
+        overflow: 'hidden',
+        borderBottom: '1px solid rgba(255,255,255,0.16)',
+        background: 'rgb(48, 50, 56)',
       }}
       visible={visible}
-      width={isMobile ? '100%' : 600}
+      width={isMobile ? '100%' : 980}
       closeIcon={
         <Button
           className='semi-button-tertiary semi-button-size-small semi-button-borderless'
@@ -71,37 +76,68 @@ const ModelDetailSideSheet = ({
       }
       onCancel={onClose}
     >
-      <div className='p-2'>
+      <div className='model-detail-scroll min-h-full bg-transparent px-3 py-3 sm:px-5 sm:py-4'>
         {!modelData && (
           <div className='flex justify-center items-center py-10'>
             <Text type='secondary'>{t('加载中...')}</Text>
           </div>
         )}
         {modelData && (
-          <>
-            <ModelBasicInfo
-              modelData={modelData}
-              vendorsMap={vendorsMap}
-              t={t}
-            />
-            <ModelEndpoints
-              modelData={modelData}
-              endpointMap={endpointMap}
-              t={t}
-            />
-            <ModelPricingTable
-              modelData={modelData}
-              groupRatio={groupRatio}
-              currency={currency}
-              siteDisplayType={siteDisplayType}
-              tokenUnit={tokenUnit}
-              displayPrice={displayPrice}
-              showRatio={showRatio}
-              usableGroup={usableGroup}
-              autoGroups={autoGroups}
-              t={t}
-            />
-          </>
+          <Tabs
+            type='button'
+            keepDOM={false}
+            className='model-details-tabs'
+          >
+            <Tabs.TabPane
+              tab={<span className='inline-flex items-center gap-1.5'><Info size={14} />{t('概览')}</span>}
+              itemKey='overview'
+            >
+              <div className='space-y-5 pt-4'>
+              <ModelOverviewCards
+                modelData={modelData}
+                endpointMap={endpointMap}
+                usableGroup={usableGroup}
+                t={t}
+              />
+              <ModelPricingTable
+                modelData={modelData}
+                groupRatio={groupRatio}
+                currency={currency}
+                siteDisplayType={siteDisplayType}
+                tokenUnit={tokenUnit}
+                displayPrice={displayPrice}
+                showRatio={showRatio}
+                usableGroup={usableGroup}
+                autoGroups={autoGroups}
+                t={t}
+              />
+              </div>
+            </Tabs.TabPane>
+            <Tabs.TabPane
+              tab={<span className='inline-flex items-center gap-1.5'><HeartPulse size={14} />{t('性能')}</span>}
+              itemKey='performance'
+            >
+              <div className='pt-4'>
+              <ModelPerformancePanel
+                modelData={modelData}
+                usableGroup={usableGroup}
+                t={t}
+              />
+              </div>
+            </Tabs.TabPane>
+            <Tabs.TabPane
+              tab={<span className='inline-flex items-center gap-1.5'><Code2 size={14} />API</span>}
+              itemKey='api'
+            >
+              <div className='pt-4'>
+                <ModelEndpoints
+                  modelData={modelData}
+                  endpointMap={endpointMap}
+                  t={t}
+                />
+              </div>
+            </Tabs.TabPane>
+          </Tabs>
         )}
       </div>
     </SideSheet>

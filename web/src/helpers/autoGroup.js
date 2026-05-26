@@ -17,3 +17,22 @@ export const getPricingVisibleGroups = (usableGroup = {}) => [
   'all',
   ...Object.keys(usableGroup).filter((key) => key !== '' && key !== 'auto'),
 ];
+
+export const getVisibleModelGroups = (modelEnableGroups = [], usableGroup = {}) => {
+  const selectableGroups = Object.keys(usableGroup).filter(
+    (key) => key !== '' && key !== 'auto',
+  );
+  if (!Array.isArray(modelEnableGroups) || modelEnableGroups.length === 0) {
+    return [];
+  }
+  if (modelEnableGroups.includes('all')) {
+    return selectableGroups;
+  }
+  return modelEnableGroups.filter((group) => selectableGroups.includes(group));
+};
+
+export const isModelVisibleInGroup = (model = {}, group = 'all') => {
+  if (group === 'all') return true;
+  const enableGroups = Array.isArray(model.enable_groups) ? model.enable_groups : [];
+  return enableGroups.includes('all') || enableGroups.includes(group);
+};

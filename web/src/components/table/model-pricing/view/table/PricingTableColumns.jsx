@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Tag, Space, Tooltip } from '@douyinfe/semi-ui';
+import { Button, Tag, Space, Tooltip } from '@douyinfe/semi-ui';
 import { IconHelpCircle } from '@douyinfe/semi-icons';
 import {
   renderModelTag,
@@ -32,6 +32,7 @@ import {
   renderDescription,
 } from '../../../../common/ui/RenderUtils';
 import { useIsMobile } from '../../../../../hooks/common/useIsMobile';
+import ModelPerfBadge from '../../performance/ModelPerfBadge';
 
 function renderQuotaType(type, t) {
   switch (type) {
@@ -113,6 +114,9 @@ export const getPricingTableColumns = ({
   tokenUnit,
   displayPrice,
   showRatio,
+  openModelDetail,
+  perfMap = {},
+  perfSeriesMap = {},
 }) => {
   const isMobile = useIsMobile();
   const priceDataCache = new WeakMap();
@@ -140,6 +144,37 @@ export const getPricingTableColumns = ({
     render: (text, record, index) => {
       return renderSupportedEndpoints(text);
     },
+  };
+
+  const performanceColumn = {
+    title: t('可用性'),
+    dataIndex: 'model_name',
+    render: (text) => (
+      <ModelPerfBadge
+        perf={perfMap[text]}
+        seriesGroups={perfSeriesMap[text] || []}
+        t={t}
+      />
+    ),
+  };
+
+  const actionColumn = {
+    title: t('操作'),
+    dataIndex: 'action',
+    fixed: isMobile ? undefined : 'right',
+    render: (_, record) => (
+      <Button
+        size='small'
+        type='primary'
+        theme='light'
+        onClick={(e) => {
+          e.stopPropagation();
+          openModelDetail?.(record);
+        }}
+      >
+        {t('详情')}
+      </Button>
+    ),
   };
 
   const modelNameColumn = {
@@ -251,9 +286,11 @@ export const getPricingTableColumns = ({
 
   const columns = [...baseColumns];
   columns.push(endpointColumn);
+  columns.push(performanceColumn);
   if (showRatio) {
     columns.push(ratioColumn);
   }
   columns.push(priceColumn);
+  columns.push(actionColumn);
   return columns;
 };

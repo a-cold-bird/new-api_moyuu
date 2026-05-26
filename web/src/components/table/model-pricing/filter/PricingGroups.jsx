@@ -19,7 +19,7 @@ For commercial licensing, please contact support@quantumnous.com
 
 import React from 'react';
 import SelectableButtonGroup from '../../../common/ui/SelectableButtonGroup';
-import { getPricingVisibleGroups } from '../../../../helpers/autoGroup';
+import { getPricingVisibleGroups, isModelVisibleInGroup } from '../../../../helpers/autoGroup';
 
 /**
  * 分组筛选组件
@@ -46,7 +46,7 @@ const PricingGroups = ({
     const modelCount =
       g === 'all'
         ? models.length
-        : models.filter((m) => m.enable_groups && m.enable_groups.includes(g))
+        : models.filter((m) => isModelVisibleInGroup(m, g))
             .length;
     let ratioDisplay = '';
     if (g === 'all') {

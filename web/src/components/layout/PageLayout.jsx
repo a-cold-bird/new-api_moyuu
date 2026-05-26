@@ -104,9 +104,11 @@ const PageLayout = () => {
         statusDispatch({ type: 'set', payload: data });
         setStatusData(data);
       } else {
+        statusDispatch({ type: 'load_failed' });
         showError('Unable to connect to server');
       }
     } catch (error) {
+      statusDispatch({ type: 'load_failed' });
       showError('Failed to load status');
     }
   };

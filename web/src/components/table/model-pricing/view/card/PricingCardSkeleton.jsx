@@ -31,17 +31,17 @@ const PricingCardSkeleton = ({
         {Array.from({ length: skeletonCount }).map((_, index) => (
           <Card
             key={index}
-            className='!rounded-2xl border border-gray-200'
+            className='!rounded-xl border border-[var(--semi-color-border)] shadow-none'
             bodyStyle={{ padding: '24px' }}
           >
             {/* 头部：图标 + 模型名称 + 操作按钮 */}
             <div className='flex items-start justify-between mb-3'>
               <div className='flex items-start space-x-3 flex-1 min-w-0'>
                 {/* 模型图标骨架 */}
-                <div className='w-12 h-12 rounded-2xl flex items-center justify-center relative shadow-sm'>
+                <div className='w-10 h-10 rounded-xl flex items-center justify-center relative bg-transparent overflow-hidden'>
                   <Skeleton.Avatar
-                    size='large'
-                    style={{ width: 48, height: 48, borderRadius: 16 }}
+                    size='small'
+                    style={{ width: 40, height: 40, borderRadius: 12, border: 0 }}
                   />
                 </div>
                 {/* 模型名称和价格区域 */}
@@ -50,7 +50,7 @@ const PricingCardSkeleton = ({
                   <Skeleton.Title
                     style={{
                       width: `${120 + (index % 3) * 30}px`,
-                      height: 20,
+                      height: 16,
                       marginBottom: 8,
                     }}
                   />
@@ -58,7 +58,7 @@ const PricingCardSkeleton = ({
                   <Skeleton.Title
                     style={{
                       width: `${160 + (index % 4) * 20}px`,
-                      height: 20,
+                      height: 14,
                       marginBottom: 0,
                     }}
                   />
@@ -91,7 +91,8 @@ const PricingCardSkeleton = ({
             </div>
 
             {/* 标签区域骨架 */}
-            <div className='flex flex-wrap gap-2'>
+            <div className='grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-2 gap-y-2'>
+              <div className='flex flex-wrap gap-2'>
               {Array.from({ length: 2 + (index % 3) }).map((_, tagIndex) => (
                 <Skeleton.Button
                   key={tagIndex}
@@ -103,6 +104,15 @@ const PricingCardSkeleton = ({
                   }}
                 />
               ))}
+              </div>
+              <div className='grid grid-cols-3 gap-1'>
+                {Array.from({ length: 3 }).map((_, perfIndex) => (
+                  <Skeleton.Title
+                    key={perfIndex}
+                    style={{ width: 26, height: 12, marginBottom: 0 }}
+                  />
+                ))}
+              </div>
             </div>
 
             {/* 倍率信息骨架（可选） */}

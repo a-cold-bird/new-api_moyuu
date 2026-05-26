@@ -29,7 +29,7 @@ import {
   Avatar,
 } from '@douyinfe/semi-ui';
 import { IconHelpCircle } from '@douyinfe/semi-icons';
-import { Copy } from 'lucide-react';
+import { ChevronRight, Copy } from 'lucide-react';
 import {
   IllustrationNoResult,
   IllustrationNoResultDark,
@@ -44,13 +44,14 @@ import PricingCardSkeleton from './PricingCardSkeleton';
 import { useMinimumLoadingTime } from '../../../../../hooks/common/useMinimumLoadingTime';
 import { renderLimitedItems } from '../../../../common/ui/RenderUtils';
 import { useIsMobile } from '../../../../../hooks/common/useIsMobile';
+import ModelPerfBadge from '../../performance/ModelPerfBadge';
 
 const CARD_STYLES = {
   container:
-    'w-12 h-12 rounded-2xl flex items-center justify-center relative shadow-md',
+    'w-10 h-10 rounded-xl flex items-center justify-center relative bg-transparent overflow-hidden',
   icon: 'w-8 h-8 flex items-center justify-center',
-  selected: 'border-blue-500 bg-blue-50',
-  default: 'border-gray-200 hover:border-gray-300',
+  selected: 'border-[var(--semi-color-primary)] bg-[var(--semi-color-primary-light-default)]',
+  default: 'border-[var(--semi-color-border)] hover:border-[var(--semi-color-primary)]',
 };
 
 const PricingCardView = ({
@@ -75,6 +76,8 @@ const PricingCardView = ({
   selectedRowKeys = [],
   setSelectedRowKeys,
   openModelDetail,
+  perfMap = {},
+  perfSeriesMap = {},
 }) => {
   const showSkeleton = useMinimumLoadingTime(loading);
   const startIndex = (currentPage - 1) * pageSize;
@@ -100,7 +103,7 @@ const PricingCardView = ({
     if (!model || !model.model_name) {
       return (
         <div className={CARD_STYLES.container}>
-          <Avatar size='large'>?</Avatar>
+          <Avatar size='small' color='grey' style={{ border: 0 }}>?</Avatar>
         </div>
       );
     }
@@ -133,11 +136,12 @@ const PricingCardView = ({
         <Avatar
           size='large'
           style={{
-            width: 48,
-            height: 48,
-            borderRadius: 16,
-            fontSize: 16,
+            width: 40,
+            height: 40,
+            borderRadius: 12,
+            fontSize: 14,
             fontWeight: 'bold',
+            border: 0,
           }}
         >
           {avatarText}
@@ -253,26 +257,39 @@ const PricingCardView = ({
           return (
             <Card
               key={modelKey || index}
-              className={`!rounded-2xl transition-all duration-200 hover:shadow-lg border cursor-pointer ${isSelected ? CARD_STYLES.selected : CARD_STYLES.default}`}
+              className={`!rounded-xl transition-colors duration-200 hover:!bg-gray-50/70 border cursor-pointer shadow-none ${isSelected ? CARD_STYLES.selected : CARD_STYLES.default}`}
               bodyStyle={{ height: '100%' }}
               onClick={() => openModelDetail && openModelDetail(model)}
             >
               <div className='flex flex-col h-full'>
                 {/* 头部：图标 + 模型名称 + 操作按钮 */}
-                <div className='flex items-start justify-between mb-3'>
+                <div className='flex items-start justify-between gap-2.5 mb-3'>
                   <div className='flex items-start space-x-3 flex-1 min-w-0'>
                     {getModelIcon(model)}
                     <div className='flex-1 min-w-0'>
-                      <h3 className='text-lg font-bold text-gray-900 truncate'>
+                      <h3 className='font-mono text-[15px] font-bold text-gray-900 truncate leading-tight'>
                         {model.model_name}
                       </h3>
-                      <div className='flex flex-col gap-1 text-xs mt-1'>
+                      <div className='flex flex-wrap gap-x-3 gap-y-0.5 text-xs mt-1 text-gray-500'>
                         {formatPriceInfo(priceData, t, siteDisplayType)}
                       </div>
                     </div>
                   </div>
 
-                  <div className='flex items-center space-x-2 ml-3'>
+                  <div className='flex shrink-0 items-center space-x-1.5 ml-2'>
+                    <Button
+                      size='small'
+                      theme='light'
+                      type='primary'
+                      icon={<ChevronRight size={13} />}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openModelDetail && openModelDetail(model);
+                      }}
+                    >
+                      {t('详情')}
+                    </Button>
+
                     {/* 复制按钮 */}
                     <Button
                       size='small'
@@ -301,7 +318,7 @@ const PricingCardView = ({
                 {/* 模型描述 - 占据剩余空间 */}
                 <div className='flex-1 mb-4'>
                   <p
-                    className='text-xs line-clamp-2 leading-relaxed'
+                    className='text-[13px] line-clamp-2 leading-relaxed'
                     style={{ color: 'var(--semi-color-text-2)' }}
                   >
                     {getModelDescription(model)}
@@ -310,8 +327,21 @@ const PricingCardView = ({
 
                 {/* 底部区域 */}
                 <div className='mt-auto'>
-                  {/* 标签区域 */}
-                  {renderTags(model)}
+                  <div className='grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-2 gap-y-1'>
+                    <div>{renderTags(model)}</div>
+                    <ModelPerfBadge
+                      perf={perfMap[model.model_name]}
+                      seriesGroups={perfSeriesMap[model.model_name] || []}
+                      t={t}
+                      compact={true}
+                    />
+                    <div className='flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-0.5 text-xs text-gray-400'>
+                      {(model.supported_endpoint_types || []).slice(0, 2).map((endpoint) => (
+                        <span key={endpoint}>{endpoint}</span>
+                      ))}
+                      <span>{tokenUnit === 'K' ? '1K' : '1M'}</span>
+                    </div>
+                  </div>
 
                   {/* 倍率信息（可选） */}
                   {showRatio && (

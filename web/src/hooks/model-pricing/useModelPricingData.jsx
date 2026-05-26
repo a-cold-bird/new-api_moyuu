@@ -20,9 +20,60 @@ For commercial licensing, please contact support@quantumnous.com
 import { useState, useEffect, useContext, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { API, copy, showError, showInfo, showSuccess } from '../../helpers';
+import {
+  buildPerfSummaryMaps,
+  getPerfSummaryCacheKey,
+  normalizeDisplayRate,
+} from '../../helpers/perfMetrics';
+import { isModelVisibleInGroup } from '../../helpers/autoGroup';
 import { Modal } from '@douyinfe/semi-ui';
 import { UserContext } from '../../context/User';
 import { StatusContext } from '../../context/Status';
+
+const PERF_SUMMARY_CACHE_TTL = 60 * 1000;
+
+const perfSummarySeriesCache = new Map();
+
+async function fetchPerfSummarySeriesModels(cacheKey) {
+  const now = Date.now();
+  const cacheEntry = perfSummarySeriesCache.get(cacheKey);
+  if (cacheEntry?.models && now < cacheEntry.expiresAt) {
+    return cacheEntry.models;
+  }
+  if (cacheEntry?.promise) {
+    return cacheEntry.promise;
+  }
+
+  const promise = API.get('/api/perf-metrics/summary-series', {
+    params: { hours: 18 },
+    skipErrorHandler: true,
+  })
+    .then((perfRes) => {
+      if (!perfRes.data?.success) {
+        perfSummarySeriesCache.delete(cacheKey);
+        return [];
+      }
+      const models = perfRes.data.data?.models || [];
+      perfSummarySeriesCache.set(cacheKey, {
+        expiresAt: Date.now() + PERF_SUMMARY_CACHE_TTL,
+        models,
+        promise: null,
+      });
+      return models;
+    })
+    .catch(() => {
+      perfSummarySeriesCache.delete(cacheKey);
+      throw new Error('load perf summary failed');
+    });
+
+  perfSummarySeriesCache.set(cacheKey, {
+    expiresAt: 0,
+    models: null,
+    promise,
+  });
+
+  return promise;
+}
 
 export const useModelPricingData = () => {
   const { t } = useTranslation();
@@ -45,6 +96,8 @@ export const useModelPricingData = () => {
   const [showWithRecharge, setShowWithRecharge] = useState(false);
   const [tokenUnit, setTokenUnit] = useState('M');
   const [models, setModels] = useState([]);
+  const [perfMap, setPerfMap] = useState({});
+  const [perfSeriesMap, setPerfSeriesMap] = useState({});
   const [vendorsMap, setVendorsMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [groupRatio, setGroupRatio] = useState({});
@@ -57,15 +110,15 @@ export const useModelPricingData = () => {
 
   // 充值汇率（price）与美元兑人民币汇率（usd_exchange_rate）
   const priceRate = useMemo(
-    () => statusState?.status?.price ?? 1,
+    () => normalizeDisplayRate(statusState?.status?.price, 1),
     [statusState],
   );
   const usdExchangeRate = useMemo(
-    () => statusState?.status?.usd_exchange_rate ?? priceRate,
+    () => normalizeDisplayRate(statusState?.status?.usd_exchange_rate, priceRate),
     [statusState, priceRate],
   );
   const customExchangeRate = useMemo(
-    () => statusState?.status?.custom_currency_exchange_rate ?? 1,
+    () => normalizeDisplayRate(statusState?.status?.custom_currency_exchange_rate, 1),
     [statusState],
   );
   const customCurrencySymbol = useMemo(
@@ -100,9 +153,7 @@ export const useModelPricingData = () => {
 
     // 分组筛选
     if (filterGroup !== 'all') {
-      result = result.filter((model) =>
-        model.enable_groups.includes(filterGroup),
-      );
+      result = result.filter((model) => isModelVisibleInGroup(model, filterGroup));
     }
 
     // 计费类型筛选
@@ -225,10 +276,38 @@ export const useModelPricingData = () => {
     setModels(models);
   };
 
+  const loadPerfSummarySeries = async () => {
+    try {
+      const models = await fetchPerfSummarySeriesModels(
+        getPerfSummaryCacheKey(userState?.user),
+      );
+      const { perfMap: nextPerfMap, perfSeriesMap: nextPerfSeriesMap } =
+        buildPerfSummaryMaps(models);
+      setPerfMap(nextPerfMap);
+      setPerfSeriesMap(nextPerfSeriesMap);
+    } catch {
+      setPerfMap({});
+      setPerfSeriesMap({});
+    }
+  };
+
   const loadPricing = async () => {
     setLoading(true);
-    let url = '/api/pricing';
-    const res = await API.get(url);
+    let res;
+    try {
+      res = await API.get('/api/pricing', { skipErrorHandler: true });
+    } catch (error) {
+      const status = error.response?.status;
+      if (status === 401) {
+        showError(t('请先登录后查看模型广场'));
+      } else if (status === 403) {
+        showError(t('您无权访问此页面，请联系管理员'));
+      } else {
+        showError(t('加载模型价格失败'));
+      }
+      setLoading(false);
+      return;
+    }
     const {
       success,
       message,
@@ -254,10 +333,12 @@ export const useModelPricingData = () => {
       setEndpointMap(supported_endpoint || {});
       setAutoGroups(auto_groups || []);
       setModelsFormat(data, group_ratio, vendorMap);
+      setLoading(false);
+      loadPerfSummarySeries();
     } else {
       showError(message);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const refresh = async () => {
@@ -374,6 +455,8 @@ export const useModelPricingData = () => {
     usableGroup,
     endpointMap,
     autoGroups,
+    perfMap,
+    perfSeriesMap,
 
     // 计算属性
     priceRate,

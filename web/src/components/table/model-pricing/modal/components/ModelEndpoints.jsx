@@ -18,8 +18,8 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Card, Avatar, Typography, Badge } from '@douyinfe/semi-ui';
-import { IconLink } from '@douyinfe/semi-icons';
+import { Card, Typography, Badge, Tag } from '@douyinfe/semi-ui';
+import { Code2, Link2 } from 'lucide-react';
 
 const { Text } = Typography;
 
@@ -39,42 +39,50 @@ const ModelEndpoints = ({ modelData, endpointMap = {}, t }) => {
         path = path.replaceAll('{model}', modelName);
       }
       const method = info.method || 'POST';
+      const samplePath = path || `/v1/${type}`;
       return (
         <div
           key={type}
-          className='flex justify-between border-b border-dashed last:border-0 py-2 last:pb-0'
+          className='rounded-xl border border-gray-100 bg-white p-3 shadow-sm'
           style={{ borderColor: 'var(--semi-color-border)' }}
         >
-          <span className='flex items-center pr-5'>
-            <Badge dot type='success' className='mr-2' />
-            {type}
-            {path && '：'}
-            {path && (
-              <span className='text-gray-500 md:ml-1 break-all'>{path}</span>
-            )}
-          </span>
-          {path && (
-            <span className='text-gray-500 text-xs md:ml-1'>{method}</span>
-          )}
+          <div className='flex flex-wrap items-center justify-between gap-3'>
+            <span className='flex min-w-0 items-center gap-2 pr-5'>
+              <Badge dot type='success' />
+              <Tag color='blue' shape='circle' size='small' className='font-semibold'>
+                {type}
+              </Tag>
+            </span>
+            <span className='rounded-md border border-gray-100 bg-gray-50 px-2 py-1 font-mono text-[11px] text-gray-500'>
+              {method}
+            </span>
+          </div>
+          <div className='mt-3 flex items-start gap-2 rounded-lg bg-gray-50 px-3 py-2'>
+            <Link2 size={14} className='mt-0.5 shrink-0 text-gray-400' />
+            <code className='break-all font-mono text-xs text-gray-600'>{samplePath}</code>
+          </div>
         </div>
       );
     });
   };
 
   return (
-    <Card className='!rounded-2xl shadow-sm border-0 mb-6'>
+    <Card className='!rounded-xl border border-gray-100 bg-white shadow-sm'>
+      <div className='mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400'>
+        API
+      </div>
       <div className='flex items-center mb-4'>
-        <Avatar size='small' color='purple' className='mr-2 shadow-md'>
-          <IconLink size={16} />
-        </Avatar>
+        <div className='mr-3 flex h-9 w-9 items-center justify-center rounded-lg border border-purple-100/50 bg-purple-50 text-purple-600'>
+          <Code2 size={18} />
+        </div>
         <div>
-          <Text className='text-lg font-medium'>{t('API端点')}</Text>
-          <div className='text-xs text-gray-600'>
+          <Text className='text-sm font-semibold text-gray-900'>{t('API端点')}</Text>
+          <div className='text-[11px] text-gray-400'>
             {t('模型支持的接口端点信息')}
           </div>
         </div>
       </div>
-      {renderAPIEndpoints()}
+      <div className='space-y-3'>{renderAPIEndpoints()}</div>
     </Card>
   );
 };

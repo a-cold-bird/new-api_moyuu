@@ -44,6 +44,8 @@ const PricingTable = ({
   showRatio,
   compactMode = false,
   openModelDetail,
+  perfMap = {},
+  perfSeriesMap = {},
   t,
 }) => {
   const columns = useMemo(() => {
@@ -59,6 +61,9 @@ const PricingTable = ({
       tokenUnit,
       displayPrice,
       showRatio,
+      openModelDetail,
+      perfMap,
+      perfSeriesMap,
     });
   }, [
     t,
@@ -72,6 +77,9 @@ const PricingTable = ({
     tokenUnit,
     displayPrice,
     showRatio,
+    openModelDetail,
+    perfMap,
+    perfSeriesMap,
   ]);
 
   // 更新列定义中的 searchValue

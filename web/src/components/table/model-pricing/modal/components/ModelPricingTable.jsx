@@ -18,8 +18,8 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Card, Avatar, Typography, Table, Tag } from '@douyinfe/semi-ui';
-import { IconCoinMoneyStroked } from '@douyinfe/semi-icons';
+import { Card, Typography, Table, Tag } from '@douyinfe/semi-ui';
+import { DollarSign } from 'lucide-react';
 import { calculateModelPrice, getModelPriceItems } from '../../../../../helpers';
 import { buildAutoGroupChain } from '../../../../../helpers/autoGroup';
 
@@ -45,10 +45,11 @@ const ModelPricingTable = ({
   const renderGroupPriceTable = () => {
     // 仅展示模型可用的分组：模型 enable_groups 与用户可用分组的交集
 
+    const modelAllowsAllGroups = modelEnableGroups.includes('all');
     const availableGroups = Object.keys(usableGroup || {})
       .filter((g) => g !== '')
       .filter((g) => g !== 'auto')
-      .filter((g) => modelEnableGroups.includes(g));
+      .filter((g) => modelAllowsAllGroups || modelEnableGroups.includes(g));
 
     // 准备表格数据
     const tableData = availableGroups.map((group) => {
@@ -88,9 +89,8 @@ const ModelPricingTable = ({
         title: t('分组'),
         dataIndex: 'group',
         render: (text) => (
-          <Tag color='white' size='small' shape='circle'>
+          <Tag color='blue' size='small' shape='circle' className='font-semibold'>
             {text}
-            {t('分组')}
           </Tag>
         ),
       },
@@ -102,7 +102,7 @@ const ModelPricingTable = ({
         title: t('倍率'),
         dataIndex: 'ratio',
         render: (text) => (
-          <Tag color='white' size='small' shape='circle'>
+          <Tag color='white' size='small' shape='circle' className='border border-gray-150 font-mono'>
             {text}x
           </Tag>
         ),
@@ -118,7 +118,7 @@ const ModelPricingTable = ({
         if (text === t('按量计费')) color = 'violet';
         else if (text === t('按次计费')) color = 'teal';
         return (
-          <Tag color={color} size='small' shape='circle'>
+          <Tag color={color} size='small' shape='circle' className='font-medium'>
             {text || '-'}
           </Tag>
         );
@@ -129,49 +129,56 @@ const ModelPricingTable = ({
       title: siteDisplayType === 'TOKENS' ? t('计费摘要') : t('价格摘要'),
       dataIndex: 'priceItems',
       render: (items) => (
-        <div className='space-y-1'>
+        <div className='space-y-1 py-1'>
           {items.map((item) => (
-            <div key={item.key}>
-              <div className='font-semibold text-orange-600'>
+            <div key={item.key} className='flex flex-col gap-0.5'>
+              <div className='font-mono font-bold text-sm text-orange-600 tracking-tight'>
                 {item.label} {item.value}
               </div>
-              <div className='text-xs text-gray-500'>{item.suffix}</div>
+              <div className='text-[10px] text-gray-400 font-medium scale-95 origin-left'>{item.suffix}</div>
             </div>
           ))}
         </div>
       ),
     });
 
-    return (
+    return tableData.length > 0 ? (
       <Table
         dataSource={tableData}
         columns={columns}
         pagination={false}
         size='small'
         bordered={false}
-        className='!rounded-lg'
+        className='!rounded-xl border border-gray-100 overflow-hidden'
       />
+    ) : (
+      <div className='rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-gray-400'>
+        {t('该模型暂无公开分组价格')}
+      </div>
     );
   };
 
   return (
-    <Card className='!rounded-2xl shadow-sm border-0'>
-      <div className='flex items-center mb-4'>
-        <Avatar size='small' color='orange' className='mr-2 shadow-md'>
-          <IconCoinMoneyStroked size={16} />
-        </Avatar>
+    <Card className='!rounded-xl border border-gray-100 bg-white shadow-sm' bodyStyle={{ padding: 20 }}>
+      <div className='mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400'>
+        {t('价格')}
+      </div>
+      <div className='flex items-center gap-3 mb-4'>
+        <div className='w-9 h-9 rounded-lg bg-orange-50/70 text-orange-600 flex items-center justify-center border border-orange-100/30'>
+          <DollarSign size={18} />
+        </div>
         <div>
-          <Text className='text-lg font-medium'>{t('分组价格')}</Text>
-          <div className='text-xs text-gray-600'>
+          <Text strong className='text-sm font-semibold tracking-wide text-gray-900'>{t('分组价格')}</Text>
+          <div className='text-[11px] text-gray-400 font-medium mt-0.5'>
             {t('不同用户分组的价格信息')}
           </div>
         </div>
       </div>
       {autoChainText && (
-        <div className='flex flex-wrap items-center gap-1 mb-4'>
-          <span className='text-sm text-gray-600'>{t('auto分组调用链路')}</span>
-          <span className='text-sm'>→</span>
-          <span className='text-sm'>{autoChainText}</span>
+        <div className='flex flex-wrap items-center gap-1.5 bg-gray-50 border border-gray-100 p-2.5 rounded-xl mb-4 text-xs font-medium text-gray-600'>
+          <span>{t('auto分组调用链路')}</span>
+          <span className='text-gray-400'>→</span>
+          <span className='text-gray-800 font-mono'>{autoChainText}</span>
         </div>
       )}
       {renderGroupPriceTable()}

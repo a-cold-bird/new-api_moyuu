@@ -18,18 +18,24 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import React from 'react';
-import { Typography, Toast, Avatar } from '@douyinfe/semi-ui';
-import { getLobeHubIcon } from '../../../../../helpers';
+import { Tag, Typography, Toast, Avatar } from '@douyinfe/semi-ui';
+import { getLobeHubIcon, stringToColor } from '../../../../../helpers';
 
 const { Paragraph } = Typography;
 
 const CARD_STYLES = {
   container:
-    'w-12 h-12 rounded-2xl flex items-center justify-center relative shadow-md',
+    'w-12 h-12 rounded-xl flex items-center justify-center relative bg-transparent overflow-hidden',
   icon: 'w-8 h-8 flex items-center justify-center',
 };
 
 const ModelHeader = ({ modelData, vendorsMap = {}, t }) => {
+  const tags = modelData?.tags
+    ? modelData.tags.split(',').map((tag) => tag.trim()).filter(Boolean)
+    : [];
+  const vendorName = modelData?.vendor_name || vendorsMap?.[modelData?.vendor]?.name;
+  const billingType = modelData?.quota_type === 0 ? t('按量计费') : t('按次计费');
+  const description = modelData?.description || modelData?.vendor_description || '';
   // 获取模型图标（优先模型图标，其次供应商图标）
   const getModelIcon = () => {
     // 1) 优先使用模型自定义图标
@@ -65,6 +71,7 @@ const ModelHeader = ({ modelData, vendorsMap = {}, t }) => {
             borderRadius: 16,
             fontSize: 16,
             fontWeight: 'bold',
+            border: 0,
           }}
         >
           {avatarText}
@@ -74,20 +81,47 @@ const ModelHeader = ({ modelData, vendorsMap = {}, t }) => {
   };
 
   return (
-    <div className='flex items-center'>
+    <div className='flex items-start gap-3 py-1'>
       {getModelIcon()}
-      <div className='ml-3 font-normal'>
+      <div className='min-w-0 flex-1 font-normal'>
         <Paragraph
-          className='!mb-0 !text-lg !font-medium'
+          className='!mb-0 !text-xl !font-bold !leading-tight'
           copyable={{
             content: modelData?.model_name || '',
             onCopy: () => Toast.success({ content: t('已复制模型名称') }),
           }}
         >
-          <span className='truncate max-w-60 font-bold'>
+          <span className='block truncate font-mono tracking-tight max-w-[680px]'>
             {modelData?.model_name || t('未知模型')}
           </span>
         </Paragraph>
+        <div className='mt-1 flex flex-wrap items-center gap-1.5 text-xs text-gray-500'>
+          {vendorName && <span>{vendorName}</span>}
+          {vendorName && <span className='text-gray-300'>·</span>}
+          <span>{billingType}</span>
+          {modelData?.billing_mode === 'tiered_expr' && modelData?.billing_expr && (
+            <Tag color='amber' size='small' shape='circle' className='!text-[10px]'>
+              {t('动态定价')}
+            </Tag>
+          )}
+        </div>
+        {description && (
+          <Paragraph
+            className='!mb-0 !mt-2 !text-xs !leading-relaxed !text-gray-500 max-w-[760px]'
+            ellipsis={{ rows: 2, showTooltip: true }}
+          >
+            {description}
+          </Paragraph>
+        )}
+        {tags.length > 0 && (
+          <div className='mt-2 flex flex-wrap gap-1'>
+            {tags.slice(0, 8).map((tag) => (
+              <Tag key={tag} color={stringToColor(tag)} size='small' shape='circle' className='!text-[10px]'>
+                {tag}
+              </Tag>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

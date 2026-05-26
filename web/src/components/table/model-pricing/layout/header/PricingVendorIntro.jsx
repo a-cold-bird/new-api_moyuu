@@ -27,7 +27,6 @@ import {
   Modal,
 } from '@douyinfe/semi-ui';
 import { getLobeHubIcon } from '../../../../../helpers';
-import SearchActions from './SearchActions';
 
 const { Paragraph } = Typography;
 
@@ -50,15 +49,15 @@ const THEME_COLORS = {
 
 const COMPONENT_STYLES = {
   tag: {
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    color: '#1f2937',
-    border: '1px solid rgba(255,255,255,0.8)',
+    backgroundColor: 'var(--semi-color-fill-0)',
+    color: 'var(--semi-color-text-0)',
+    border: '1px solid var(--semi-color-border)',
     fontWeight: '500',
   },
   avatarContainer:
-    'w-16 h-16 rounded-2xl bg-white/90 shadow-md backdrop-blur-sm flex items-center justify-center',
-  titleText: { color: 'white' },
-  descriptionText: { color: 'rgba(255,255,255,0.9)' },
+    'w-12 h-12 rounded-xl bg-transparent flex items-center justify-center overflow-hidden',
+  titleText: { color: 'var(--semi-color-text-0)' },
+  descriptionText: { color: 'var(--semi-color-text-2)' },
 };
 
 const CONTENT_TEXTS = {
@@ -86,7 +85,7 @@ const getVendorDisplayName = (vendorName, t) => {
 
 const createDefaultAvatar = () => (
   <div className={COMPONENT_STYLES.avatarContainer}>
-    <Avatar size='large' color='transparent'>
+    <Avatar size='small' color='blue'>
       AI
     </Avatar>
   </div>
@@ -109,7 +108,7 @@ const createAvatarContent = (vendor, isAllVendors) => {
 
   return (
     <Avatar
-      size='large'
+      size='small'
       style={{ backgroundColor: getAvatarBackgroundColor(isAllVendors) }}
     >
       {getAvatarText(vendor.name)}
@@ -138,24 +137,7 @@ const PricingVendorIntro = memo(
     models = [],
     allModels = [],
     t,
-    selectedRowKeys = [],
-    copyText,
-    handleChange,
-    handleCompositionStart,
-    handleCompositionEnd,
     isMobile = false,
-    searchValue = '',
-    setShowFilterModal,
-    showWithRecharge,
-    setShowWithRecharge,
-    currency,
-    setCurrency,
-    showRatio,
-    setShowRatio,
-    viewMode,
-    setViewMode,
-    tokenUnit,
-    setTokenUnit,
   }) => {
     const [currentOffset, setCurrentOffset] = useState(0);
     const [descModalVisible, setDescModalVisible] = useState(false);
@@ -270,68 +252,29 @@ const PricingVendorIntro = memo(
       [],
     );
 
-    const renderSearchActions = useCallback(
-      () => (
-        <SearchActions
-          selectedRowKeys={selectedRowKeys}
-          copyText={copyText}
-          handleChange={handleChange}
-          handleCompositionStart={handleCompositionStart}
-          handleCompositionEnd={handleCompositionEnd}
-          isMobile={isMobile}
-          searchValue={searchValue}
-          setShowFilterModal={setShowFilterModal}
-          showWithRecharge={showWithRecharge}
-          setShowWithRecharge={setShowWithRecharge}
-          currency={currency}
-          setCurrency={setCurrency}
-          showRatio={showRatio}
-          setShowRatio={setShowRatio}
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-          tokenUnit={tokenUnit}
-          setTokenUnit={setTokenUnit}
-          t={t}
-        />
-      ),
-      [
-        selectedRowKeys,
-        copyText,
-        handleChange,
-        handleCompositionStart,
-        handleCompositionEnd,
-        isMobile,
-        searchValue,
-        setShowFilterModal,
-        showWithRecharge,
-        setShowWithRecharge,
-        currency,
-        setCurrency,
-        showRatio,
-        setShowRatio,
-        viewMode,
-        setViewMode,
-        tokenUnit,
-        setTokenUnit,
-        t,
-      ],
-    );
-
     const renderHeaderCard = useCallback(
       ({ title, count, description, rightContent, primaryDarkerChannel }) => (
         <Card
-          className='!rounded-2xl shadow-sm border-0'
+          className='!rounded-2xl shadow-none border border-gray-100 overflow-hidden'
           cover={
             <div
-              className='relative h-full'
-              style={createCoverStyle(primaryDarkerChannel)}
+              className='relative h-full min-h-[118px] bg-[var(--semi-color-bg-0)]'
+              style={{
+                background: [
+                  `radial-gradient(ellipse 60% 50% at 20% 20%, rgba(${primaryDarkerChannel}, 0.16) 0%, transparent 70%)`,
+                  'radial-gradient(ellipse 50% 40% at 80% 15%, rgba(14, 165, 233, 0.12) 0%, transparent 70%)',
+                  'linear-gradient(180deg, color-mix(in srgb, var(--semi-color-bg-0) 94%, transparent), color-mix(in srgb, var(--semi-color-bg-1) 88%, transparent))',
+                ].join(', '),
+              }}
             >
-              <div className='relative z-10 h-full flex items-center justify-between p-4'>
-                <div className='flex-1 min-w-0 mr-4'>
-                  <div className='flex flex-row flex-wrap items-center gap-2 sm:gap-3 mb-2'>
+              <div className='relative z-10 h-full flex flex-col items-center justify-center px-5 py-4 text-center'>
+                <div className='flex-1 min-w-0'>
+                  <div className='mb-1.5 text-[10px] font-medium uppercase tracking-[0.24em] text-gray-400'>
+                    Models Directory
+                  </div>
+                  <div className='flex flex-row flex-wrap items-center justify-center gap-2 sm:gap-3 mb-1.5'>
                     <h2
-                      className='text-lg sm:text-xl font-bold truncate'
-                      style={COMPONENT_STYLES.titleText}
+                      className='text-2xl sm:text-4xl font-bold tracking-tight text-[var(--semi-color-text-0)] truncate'
                     >
                       {title}
                     </h2>
@@ -345,24 +288,19 @@ const PricingVendorIntro = memo(
                     </Tag>
                   </div>
                   <Paragraph
-                    className='text-xs sm:text-sm leading-relaxed !mb-0 cursor-pointer'
-                    style={COMPONENT_STYLES.descriptionText}
-                    ellipsis={{ rows: 2 }}
+                    className='mx-auto max-w-2xl text-xs leading-relaxed !mb-0 cursor-pointer !text-[var(--semi-color-text-2)]'
+                    ellipsis={{ rows: 1 }}
                     onClick={() => handleOpenDescModal(description)}
                   >
                     {description}
                   </Paragraph>
                 </div>
-
-                <div className='flex-shrink-0'>{rightContent}</div>
               </div>
             </div>
           }
-        >
-          {renderSearchActions()}
-        </Card>
+        />
       ),
-      [renderSearchActions, createCoverStyle, handleOpenDescModal, t],
+      [handleOpenDescModal, t],
     );
 
     const renderAllVendorsAvatar = useCallback(() => {

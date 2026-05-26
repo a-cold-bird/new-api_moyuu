@@ -23,6 +23,12 @@ export const reducer = (state, action) => {
       return {
         ...state,
         status: action.payload,
+        statusLoaded: true,
+      };
+    case 'load_failed':
+      return {
+        ...state,
+        statusLoaded: true,
       };
     case 'unset':
       return {
@@ -36,4 +42,5 @@ export const reducer = (state, action) => {
 
 export const initialState = {
   status: undefined,
+  statusLoaded: false,
 };

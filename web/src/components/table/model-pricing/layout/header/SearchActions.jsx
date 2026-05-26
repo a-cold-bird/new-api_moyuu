@@ -65,16 +65,18 @@ const SearchActions = memo(
     }, [tokenUnit, setTokenUnit]);
 
     return (
-      <div className='flex items-center gap-2 w-full'>
+      <div className='flex flex-wrap items-center gap-2 w-full'>
         <div className='flex-1'>
           <Input
             prefix={<IconSearch />}
-            placeholder={t('模糊搜索模型名称')}
+            placeholder={t('搜索模型名称、供应商、端点或标签')}
             value={searchValue}
             onCompositionStart={handleCompositionStart}
             onCompositionEnd={handleCompositionEnd}
             onChange={handleChange}
             showClear
+            size='large'
+            className='!rounded-xl'
           />
         </div>
 
@@ -84,7 +86,7 @@ const SearchActions = memo(
           icon={<IconCopy />}
           onClick={handleCopyClick}
           disabled={selectedRowKeys.length === 0}
-          className='!bg-blue-500 hover:!bg-blue-600 !text-white disabled:!bg-gray-300 disabled:!text-gray-500'
+          className='!rounded-lg !bg-blue-500 hover:!bg-blue-600 !text-white disabled:!bg-gray-300 disabled:!text-gray-500'
         >
           {t('复制')}
         </Button>
@@ -95,8 +97,8 @@ const SearchActions = memo(
 
             {/* 充值价格显示开关 */}
             {supportsCurrencyDisplay && (
-              <div className='flex items-center gap-2'>
-                <span className='text-sm text-gray-600'>{t('充值价格显示')}</span>
+              <div className='pricing-control-chip'>
+                <span className='pricing-control-chip-label'>{t('充值价格显示')}</span>
                 <Switch
                   checked={showWithRecharge}
                   onChange={setShowWithRecharge}
@@ -109,6 +111,7 @@ const SearchActions = memo(
               <Select
                 value={currency}
                 onChange={setCurrency}
+                size='small'
                 optionList={[
                   { value: 'USD', label: 'USD' },
                   { value: 'CNY', label: 'CNY' },
@@ -118,8 +121,8 @@ const SearchActions = memo(
             )}
 
             {/* 显示倍率开关 */}
-            <div className='flex items-center gap-2'>
-              <span className='text-sm text-gray-600'>{t('倍率')}</span>
+            <div className='pricing-control-chip'>
+              <span className='pricing-control-chip-label'>{t('倍率')}</span>
               <Switch checked={showRatio} onChange={setShowRatio} />
             </div>
 
@@ -128,6 +131,7 @@ const SearchActions = memo(
               theme={viewMode === 'table' ? 'solid' : 'outline'}
               type={viewMode === 'table' ? 'primary' : 'tertiary'}
               onClick={handleViewModeToggle}
+              className='!rounded-lg'
             >
               {t('表格视图')}
             </Button>
@@ -137,6 +141,7 @@ const SearchActions = memo(
               theme={tokenUnit === 'K' ? 'solid' : 'outline'}
               type={tokenUnit === 'K' ? 'primary' : 'tertiary'}
               onClick={handleTokenUnitToggle}
+              className='!rounded-lg'
             >
               {tokenUnit}
             </Button>

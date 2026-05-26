@@ -26,8 +26,12 @@ const PricingContent = ({ isMobile, sidebarProps, ...props }) => {
     <div
       className={isMobile ? 'pricing-content-mobile' : 'pricing-scroll-hide'}
     >
-      {/* 固定的顶部区域（分类介绍 + 搜索和操作） */}
-      <div className='pricing-search-header'>
+      {/* 供应商介绍、吸顶搜索栏和模型列表在同一个滚动容器内。 */}
+      <div
+        className={
+          isMobile ? 'pricing-view-container-mobile' : 'pricing-view-container'
+        }
+      >
         <PricingTopSection
           {...props}
           isMobile={isMobile}
@@ -43,14 +47,6 @@ const PricingContent = ({ isMobile, sidebarProps, ...props }) => {
           tokenUnit={sidebarProps.tokenUnit}
           setTokenUnit={sidebarProps.setTokenUnit}
         />
-      </div>
-
-      {/* 可滚动的内容区域 */}
-      <div
-        className={
-          isMobile ? 'pricing-view-container-mobile' : 'pricing-view-container'
-        }
-      >
         <PricingView {...props} viewMode={sidebarProps.viewMode} />
       </div>
     </div>

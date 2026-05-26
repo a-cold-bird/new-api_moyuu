@@ -4,6 +4,8 @@ import assert from 'node:assert/strict';
 import {
   buildAutoGroupChain,
   getPricingVisibleGroups,
+  getVisibleModelGroups,
+  isModelVisibleInGroup,
 } from './autoGroup.js';
 
 test('buildAutoGroupChain formats configured auto group order and ratios', () => {
@@ -32,4 +34,24 @@ test('getPricingVisibleGroups hides empty and auto pseudo groups', () => {
   });
 
   assert.deepEqual(groups, ['all', 'codex', 'gemini']);
+});
+
+test('getVisibleModelGroups only returns groups selectable by the user', () => {
+  assert.deepEqual(
+    getVisibleModelGroups(['default', 'svip', 'auto'], { default: {}, vip: {}, auto: {} }),
+    ['default'],
+  );
+});
+
+test('getVisibleModelGroups expands all to user selectable groups', () => {
+  assert.deepEqual(
+    getVisibleModelGroups(['all'], { default: {}, vip: {}, auto: {} }),
+    ['default', 'vip'],
+  );
+});
+
+test('isModelVisibleInGroup treats all-enabled models as visible in every group', () => {
+  assert.equal(isModelVisibleInGroup({ enable_groups: ['all'] }, 'codex'), true);
+  assert.equal(isModelVisibleInGroup({ enable_groups: ['codex'] }, 'codex'), true);
+  assert.equal(isModelVisibleInGroup({ enable_groups: ['codex'] }, 'gemini'), false);
 });

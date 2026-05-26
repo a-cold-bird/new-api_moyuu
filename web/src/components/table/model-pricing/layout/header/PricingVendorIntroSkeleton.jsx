@@ -21,64 +21,41 @@ import React, { memo } from 'react';
 import { Card, Skeleton } from '@douyinfe/semi-ui';
 
 const THEME_COLORS = {
-  allVendors: {
-    primary: '37 99 235',
-    background: 'rgba(59, 130, 246, 0.1)',
-    border: 'rgba(59, 130, 246, 0.2)',
-  },
-  specific: {
-    primary: '16 185 129',
-    background: 'rgba(16, 185, 129, 0.1)',
-    border: 'rgba(16, 185, 129, 0.2)',
-  },
   neutral: {
-    background: 'rgba(156, 163, 175, 0.1)',
-    border: 'rgba(156, 163, 175, 0.2)',
+    background: 'color-mix(in srgb, var(--semi-color-fill-0) 70%, transparent)',
+    border: 'color-mix(in srgb, var(--semi-color-border) 70%, transparent)',
   },
 };
 
 const SIZES = {
-  title: { width: { all: 120, specific: 100 }, height: 24 },
+  eyebrow: { width: 130, height: 10 },
+  title: { width: { all: 180, specific: 150 }, height: 34 },
   tag: { width: 80, height: 20 },
-  description: { height: 14 },
-  avatar: { width: 40, height: 40 },
-  searchInput: { height: 32 },
-  button: { width: 80, height: 32 },
+  description: { height: 12 },
+  searchInput: { height: 40 },
+  button: { width: 80, height: 36 },
 };
 
 const SKELETON_STYLES = {
-  cover: (primaryColor) => ({
-    '--palette-primary-darkerChannel': primaryColor,
-    backgroundImage: `linear-gradient(0deg, rgba(var(--palette-primary-darkerChannel) / 80%), rgba(var(--palette-primary-darkerChannel) / 80%)), url('/cover-4.webp')`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-  }),
+  cover: {
+    background: [
+      'radial-gradient(ellipse 60% 50% at 20% 20%, color-mix(in srgb, var(--semi-color-primary) 12%, transparent) 0%, transparent 70%)',
+      'radial-gradient(ellipse 50% 40% at 80% 15%, color-mix(in srgb, var(--semi-color-fill-2) 34%, transparent) 0%, transparent 70%)',
+      'linear-gradient(180deg, color-mix(in srgb, var(--semi-color-bg-0) 96%, transparent), color-mix(in srgb, var(--semi-color-bg-1) 92%, transparent))',
+    ].join(', '),
+  },
   title: {
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: 'var(--semi-color-fill-1)',
     borderRadius: 8,
-    backdropFilter: 'blur(4px)',
   },
   tag: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'var(--semi-color-fill-0)',
     borderRadius: 9999,
-    backdropFilter: 'blur(4px)',
-    border: '1px solid rgba(255,255,255,0.3)',
+    border: '1px solid var(--semi-color-border)',
   },
   description: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'var(--semi-color-fill-1)',
     borderRadius: 4,
-    backdropFilter: 'blur(4px)',
-  },
-  avatar: (isAllVendors) => {
-    const colors = isAllVendors
-      ? THEME_COLORS.allVendors
-      : THEME_COLORS.specific;
-    return {
-      backgroundColor: colors.background,
-      borderRadius: 12,
-      border: `1px solid ${colors.border}`,
-    };
   },
   searchInput: {
     backgroundColor: THEME_COLORS.neutral.background,
@@ -97,28 +74,31 @@ const createSkeletonRect = (style = {}, key = null) => (
 );
 
 const PricingVendorIntroSkeleton = memo(
-  ({ isAllVendors = false, isMobile = false }) => {
+  ({ isMobile = false }) => {
     const placeholder = (
-      <Card
-        className='!rounded-2xl shadow-sm border-0'
-        cover={
-          <div
-            className='relative h-full'
-            style={SKELETON_STYLES.cover(
-              isAllVendors
-                ? THEME_COLORS.allVendors.primary
-                : THEME_COLORS.specific.primary,
-            )}
+        <Card
+          className='!rounded-2xl shadow-none border border-gray-100 overflow-hidden'
+          cover={
+            <div
+            className='relative h-full min-h-[118px] bg-[var(--semi-color-bg-0)]'
+            style={SKELETON_STYLES.cover}
           >
-            <div className='relative z-10 h-full flex items-center justify-between p-4'>
-              <div className='flex-1 min-w-0 mr-4'>
-                <div className='flex flex-row flex-wrap items-center gap-2 sm:gap-3 mb-2'>
+            <div className='relative z-10 h-full flex flex-col items-center justify-center px-5 py-4 text-center'>
+              <div className='min-w-0'>
+                {createSkeletonRect(
+                  {
+                    ...SKELETON_STYLES.description,
+                    width: SIZES.eyebrow.width,
+                    height: SIZES.eyebrow.height,
+                    margin: '0 auto 8px',
+                  },
+                  'eyebrow',
+                )}
+                <div className='flex flex-row flex-wrap items-center justify-center gap-2 sm:gap-3 mb-2'>
                   {createSkeletonRect(
                     {
                       ...SKELETON_STYLES.title,
-                      width: isAllVendors
-                        ? SIZES.title.width.all
-                        : SIZES.title.width.specific,
+                      width: SIZES.title.width.all,
                       height: SIZES.title.height,
                     },
                     'title',
@@ -136,69 +116,19 @@ const PricingVendorIntroSkeleton = memo(
                   {createSkeletonRect(
                     {
                       ...SKELETON_STYLES.description,
-                      width: '100%',
+                      width: 360,
+                      maxWidth: '70vw',
                       height: SIZES.description.height,
+                      margin: '0 auto',
                     },
                     'desc1',
                   )}
-                  {createSkeletonRect(
-                    {
-                      ...SKELETON_STYLES.description,
-                      backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                      width: '75%',
-                      height: SIZES.description.height,
-                    },
-                    'desc2',
-                  )}
                 </div>
-              </div>
-
-              <div className='flex-shrink-0 w-16 h-16 rounded-2xl bg-white/90 shadow-md backdrop-blur-sm flex items-center justify-center'>
-                {createSkeletonRect(
-                  {
-                    ...SKELETON_STYLES.avatar(isAllVendors),
-                    width: SIZES.avatar.width,
-                    height: SIZES.avatar.height,
-                  },
-                  'avatar',
-                )}
               </div>
             </div>
           </div>
         }
-      >
-        <div className='flex items-center gap-2 w-full'>
-          <div className='flex-1'>
-            {createSkeletonRect(
-              {
-                ...SKELETON_STYLES.searchInput,
-                width: '100%',
-                height: SIZES.searchInput.height,
-              },
-              'search',
-            )}
-          </div>
-
-          {createSkeletonRect(
-            {
-              ...SKELETON_STYLES.button,
-              width: SIZES.button.width,
-              height: SIZES.button.height,
-            },
-            'copy-button',
-          )}
-
-          {isMobile &&
-            createSkeletonRect(
-              {
-                ...SKELETON_STYLES.button,
-                width: SIZES.button.width,
-                height: SIZES.button.height,
-              },
-              'filter-button',
-            )}
-        </div>
-      </Card>
+      />
     );
 
     return (
